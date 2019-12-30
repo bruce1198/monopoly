@@ -81,7 +81,7 @@ int Player::ThrowDiceForToll() {
 
 void Player::Move(int num_of_move) {
     position += num_of_move;
-    position = 39;
+    // position = 39;
     // pass start
     if(position >= 40) {
         money += 2000;

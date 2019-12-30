@@ -59,7 +59,7 @@ public:
     vector<int> grid_infrastructure;
     vector<int> grid_station;
 private:
-    int money = 5000;
+    int money = 15000;
     int position = 0;
     bool one_more = false;
     int continuous_move = 0;
