@@ -51,6 +51,8 @@ private:
 	int shape_size;
 	Shape* s;
 	GLuint tex;
+    mat4 view;
+    GLfloat degree;
 public:
 	Map() {
 
@@ -82,8 +84,8 @@ public:
 			glBufferSubData(GL_ARRAY_BUFFER, shapes[i].mesh.positions.size() * sizeof(float) + shapes[i].mesh.texcoords.size() * sizeof(float), shapes[i].mesh.normals.size() * sizeof(float), &shapes[i].mesh.normals[0]);
 
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)((shapes[i].mesh.positions.size() * sizeof(float)) + (shapes[i].mesh.texcoords.size() * sizeof(float))));
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void *)(shapes[i].mesh.positions.size() * sizeof(float)));
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(shapes[i].mesh.positions.size() * sizeof(float)));
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void *)((shapes[i].mesh.positions.size() * sizeof(float)) + (shapes[i].mesh.texcoords.size() * sizeof(float))));
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -100,15 +102,26 @@ public:
 		glGenTextures(1, &tex);
 		glBindTexture(GL_TEXTURE_2D, tex);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, tdata.width, tdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata.data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        focus(0);
 	}
-	void draw() {
+    void setView(mat4 view) {
+        this->view = view;
+    }
+    void focus(int index) {
+        if(index<10) {
+            degree = 270;
+        }
+    }
+	void draw(GLuint program) {
 		for (int i = 0; i < shape_size; i++) {
 			glBindVertexArray(s[i].vao);
+            mat4 model = rotate(mat4(), radians(degree), vec3(0, 1, 0));
+            glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view * model));
 			glDrawElements(GL_TRIANGLES, s[i].indexCount, GL_UNSIGNED_INT, 0);
 		}
 	}
