@@ -79,27 +79,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\game.cpp" />
-    <ClCompile Include="..\Source\grid.cpp" />
-    <ClCompile Include="..\Source\logicmap.cpp" />
+    <ClCompile Include="..\Source\logic\game.cpp" />
+    <ClCompile Include="..\Source\logic\grid.cpp" />
+    <ClCompile Include="..\Source\logic\logicmap.cpp" />
+    <ClCompile Include="..\Source\logic\player.cpp" />
     <ClCompile Include="..\Source\main.cpp" />
-    <ClCompile Include="..\Source\player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\camera.h" />
-    <ClInclude Include="..\Source\dice.h" />
-    <ClInclude Include="..\Source\game.h" />
-    <ClInclude Include="..\Source\grid.h" />
-    <ClInclude Include="..\Source\logicmap.h" />
-    <ClInclude Include="..\Source\map.h" />
-    <ClInclude Include="..\Source\player.h" />
+    <ClInclude Include="..\Source\dice\dice.h" />
+    <ClInclude Include="..\Source\logic\game.h" />
+    <ClInclude Include="..\Source\logic\grid.h" />
+    <ClInclude Include="..\Source\logic\logicmap.h" />
+    <ClInclude Include="..\Source\logic\player.h" />
+    <ClInclude Include="..\Source\map\camera.h" />
+    <ClInclude Include="..\Source\map\map.h" />
     <ClInclude Include="..\Source\util.h" />
+    <ClInclude Include="..\Source\window\PopUpWindow.h" />
+    <ClInclude Include="..\Source\window\texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Assets\dice.fragment" />
-    <None Include="..\Assets\dice.vertex" />
-    <None Include="..\Assets\map.fragment" />
-    <None Include="..\Assets\map.vertex" />
+    <None Include="..\Assets\window\window.fragment" />
+    <None Include="..\Assets\window\window.vertex" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -59,7 +59,7 @@ public:
 			s[i].materialId = shapes[i].mesh.material_ids[0];
 			s[i].indexCount = static_cast<int>(shapes[i].mesh.indices.size());
 		}
-		texture_data tdata = load_png(tex_file);
+		TextureData tdata = load_png(tex_file);
 
 		glGenTextures(1, &tex);
 		glBindTexture(GL_TEXTURE_2D, tex);
@@ -82,6 +82,7 @@ public:
 	void draw(GLuint program) {
 		for (int i = 0; i < shape_size; i++) {
 			glBindVertexArray(s[i].vao);
+			glBindTexture(GL_TEXTURE_2D, tex);
             mat4 model = rotate(mat4(), radians(degree), vec3(0, 1, 0));
             glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view * model));
 			glDrawElements(GL_TRIANGLES, s[i].indexCount, GL_UNSIGNED_INT, 0);

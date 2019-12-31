@@ -24,6 +24,7 @@ public:
 	bool goSide;
 	int from;
 	bool response;
+	bool popout;
 	//go in
 	bool canThrow;
 	bool getPoints;

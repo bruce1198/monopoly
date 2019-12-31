@@ -104,17 +104,23 @@ void printGLError()
     }
 }
 
-typedef struct _texture_data
+typedef struct _TextureData
 {
-	_texture_data() : width(0), height(0), data(0) {}
+	_TextureData(void) :
+		width(0),
+		height(0),
+		data(0)
+	{
+	}
+
 	int width;
 	int height;
 	unsigned char* data;
-} texture_data;
+} TextureData;
 
-texture_data load_png(const char* path)
+TextureData load_png(const char* path)
 {
-    texture_data texture;
+	TextureData texture;
 	int n;
 	stbi_set_flip_vertically_on_load(true);
 	stbi_uc *data = stbi_load(path, &texture.width, &texture.height, &n, 4);
