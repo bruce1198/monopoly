@@ -24,27 +24,28 @@ typedef struct
 void print(vec3 target) {
 	cout << "(" << target.x << ", " << target.y << ", " << target.z << ")" << endl;
 }
+
 class Shader {
 private:
 	GLuint program;
-    char** loadShaderSource(const char* file)
-    {
-        FILE* fp = fopen(file, "rb");
-        fseek(fp, 0, SEEK_END);
-        long sz = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-        char *src = new char[sz + 1];
-        fread(src, sizeof(char), sz, fp);
-        src[sz] = '\0';
-        char **srcp = new char*[1];
-        srcp[0] = src;
-        return srcp;
-    }
-    void freeShaderSource(char** srcp)
-    {
-        delete srcp[0];
-        delete srcp;
-    }
+	char** loadShaderSource(const char* file)
+	{
+		FILE* fp = fopen(file, "rb");
+		fseek(fp, 0, SEEK_END);
+		long sz = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+		char *src = new char[sz + 1];
+		fread(src, sizeof(char), sz, fp);
+		src[sz] = '\0';
+		char **srcp = new char*[1];
+		srcp[0] = src;
+		return srcp;
+	}
+	void freeShaderSource(char** srcp)
+	{
+		delete srcp[0];
+		delete srcp;
+	}
 public:
 	Shader() {
 

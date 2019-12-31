@@ -1,25 +1,32 @@
-#include "dice.h"
-#include "map.h"
-#include "game.h"
+#include "dice/dice.h"
+#include "map/map.h"
+#include "logic/game.h"
+#include "window/PopUpWindow.h"
 #include <thread>
 //For GLUT to handle 
 #define MENU_TIMER_START 1
 #define MENU_TIMER_STOP 2
 #define MENU_EXIT 3
 
-//GLUT timer variable
+//timer
 GLubyte timer_cnt = 0;
 bool timer_enabled = true;
 unsigned int timer_speed = 16;
-
+//screen
+vec2 mousePos = vec2(0, 0);
+vec2 currentWH = vec2(0, 0);
 GLfloat screenWidth = 1600;
 GLfloat screenHeight = 900;
+//game object
 Game game;
 DiceGroup dg;
 Map mymap;
 Camera camera;
+PopUpWindow window;
+//shader
 Shader dice_shader;
 Shader map_shader;
+Shader window_shader;
 
 // OpenGL initialization
 void My_Init()
@@ -31,15 +38,14 @@ void My_Init()
 	glDepthFunc(GL_LEQUAL);
 
 	srand((unsigned int)time(NULL));
-	dice_shader = Shader("dice.vertex", "dice.fragment");
-	map_shader = Shader("map.vertex", "map.fragment");
-	dg = DiceGroup(2);
-	mymap = Map("Plane.obj", "bigger2.png");
-	camera = Camera(vec3(0, 15, 0), vec3(0, 1, 0), 0, -30);
+	dice_shader = Shader("dice/dice.vertex", "dice/dice.fragment");
+	map_shader = Shader("map/map.vertex", "map/map.fragment");
+	window_shader = Shader("window/window.vertex", "window/window.fragment");
 	game = Game(2);
-	//game.dg = dg;
-	//game.mymap = mymap;
-	//game.camera = camera;
+	dg = DiceGroup(2);
+	mymap = Map("map/Plane.obj", "map/bigger2.png");
+	camera = Camera(vec3(0, 15, 0), vec3(0, 1, 0), 0, -30);
+	window = PopUpWindow(window_shader.getProgram());
 	camera.goTopView();
 }
 
@@ -63,55 +69,58 @@ void My_Display()
 	glUniformMatrix4fv(glGetUniformLocation(map_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
 	mymap.setView(view);
 	mymap.draw(map_shader.getProgram());
-  
-	// Change current display buffer to another one (refresh frame) 
+	//draw window
+	window.draw(window_shader.getProgram(), mousePos, currentWH);
     glutSwapBuffers();
 }
 void My_Reshape(int width, int height) {
+	currentWH = vec2(width, height);
 	glViewport(0, 0, width, height);
 	screenWidth = (GLfloat)width;
 	screenHeight = (GLfloat)height;
 }
 void My_Timer(int val) {
-	timer_cnt++;
 	glutPostRedisplay();
-	if(timer_enabled) {
-		if (game.goThrow) {
-			game.goThrow = false;
-			if (camera.getCurrentView() == 1) {
-				dg.roll(0);
-			}
-			else {
-				camera.goSideView();
-				dg.roll(50);
-			}
+	if (game.goThrow) {
+		game.goThrow = false;
+		if (camera.getCurrentView() == 1) {
+			dg.roll(0);
 		}
-		else if (game.goSide) {
-			game.goSide = false;
+		else {
 			camera.goSideView();
+			dg.roll(50);
 		}
-		int* points = dg.update();
-		int step = points[0]+points[1];
-		if (step > 0) {
-			game.getPoints = true;
-			game.point = points;
-			while (!game.response) {
-				cout << "";
-			}
-			if (game.goWalk) {
-				game.goWalk = false;
-				int index = game.from;
-				camera.goPlayerView(index);
-				camera.movePlayerView(index, step);
-				index += step;
-			}
-			game.response = false;
-		}
-		if (camera.update()) {
-			game.movedone = true;
-		};
-		glutTimerFunc(timer_speed, My_Timer, val);
 	}
+	else if (game.goSide) {
+		game.goSide = false;
+		camera.goTopView();
+	}
+	else if (game.popout) {
+		game.popout = false;
+		window.wantOpen = true;
+		window.windowScale = 0.0f;
+	}
+	int* points = dg.update();
+	int step = points[0]+points[1];
+	if (step > 0) {
+		game.getPoints = true;
+		game.point = points;
+		while (!game.response) {
+			cout << "";
+		}
+		if (game.goWalk) {
+			game.goWalk = false;
+			int index = game.from;
+			camera.goPlayerView(index);
+			camera.movePlayerView(index, step);
+			index += step;
+		}
+		game.response = false;
+	}
+	if (camera.update()) {
+		game.movedone = true;
+	};
+	glutTimerFunc(timer_speed, My_Timer, val);
 }
 void keyboard_down(unsigned char key, int x, int y) {
 	/*if (key == 'w')
@@ -146,30 +155,6 @@ void keyboard_up(unsigned char key, int x, int y) {
 		camera.goSideView();
 	else if (key == 'r') {
 		game.canThrow = true;
-	}
-	else if (key == 'y') {
-		if (!game.getanswer) {
-			game.answer = 1;
-			game.getanswer = true;
-		}
-	}
-	else if (key == 'n') {
-		if (!game.getanswer) {
-			game.answer = 2;
-			game.getanswer = true;
-		}
-	}
-	else if (key == '1') {
-		if (!game.getanswer) {
-			game.answer = 1;
-			game.getanswer = true;
-		}
-	}
-	else if (key == '2') {
-		if (!game.getanswer) {
-			game.answer = 2;
-			game.getanswer = true;
-		}
 	}
 }
 
@@ -220,11 +205,38 @@ GLfloat lastY;
 void My_Mouse(int button, int state, int x, int y)
 {
 	if (state == GLUT_DOWN) {
-		
+		switch (window.check(mousePos, currentWH)) {
+		case 0:
+			break;
+		case 1:
+			if (window.wantOpen&& window.windowScale) {
+				if (!game.getanswer) {
+					game.answer = 1;
+					game.getanswer = true;
+					window.wantOpen = false;
+					window.windowScale = 1.0f;
+				}
+			}
+			break;
+		case 2:
+			if (window.wantOpen&& window.windowScale) {
+				if (!game.getanswer) {
+					game.answer = 2;
+					game.getanswer = true;
+					window.wantOpen = false;
+					window.windowScale = 1.0f;
+				}
+			}
+			break;
+		}
 	}
 	else if (state == GLUT_UP) {
 		firstMouse = true;
 	}
+}
+void My_PassiveMouse(int x, int y)
+{
+	mousePos = vec2(x, y);
 }
 void My_Mouse_Move(int x, int y) {
 
@@ -283,6 +295,7 @@ int main(int argc, char *argv[])
 	glutDisplayFunc(My_Display);
 	glutReshapeFunc(My_Reshape);
 	glutMouseFunc(My_Mouse);
+	glutPassiveMotionFunc(My_PassiveMouse);
 	glutMotionFunc(My_Mouse_Move);
 	glutKeyboardUpFunc(keyboard_up);
 	glutKeyboardFunc(keyboard_down);

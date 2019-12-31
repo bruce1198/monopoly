@@ -20,6 +20,7 @@ Game::Game(int num_of_player) {
 	response = false;
 	movedone = false;
 	getanswer = false;
+	popout = false;
     // player.resize(num_of_player);
 }
 void Game::ReturnAsset(int player_num) {
@@ -76,6 +77,7 @@ void Game::Run() {
 					canThrow = false;
 					movedone = false;
 					getanswer = false;
+					response = false;
 					from = player[player_iter].GetPosition();
 					//cout << "player" << player_iter << " position: " <<from << endl;
 					while (!canThrow) {
@@ -150,6 +152,7 @@ void Game::Event(int position, int player_num) {
                 cout << "This land cost " << map.grid[position].GetValue() << " dollars" << "\n";
                 cout << "yes to buy, no to not buy" << "\n";
                 cout << "----------------" << "\n";
+				popout = true;
 				while (!getanswer) {
 					cout << "";
 				}
@@ -233,6 +236,7 @@ void Game::Event(int position, int player_num) {
                     cout << "Build house cost " << cost_build << " dollars" << "\n";
                     cout << "yes to bulid, no to not build" << "\n";
                     cout << "----------------" << "\n";
+					popout = true;
 					while (!getanswer) {
 						cout << "";
 					}
@@ -268,6 +272,7 @@ void Game::Event(int position, int player_num) {
                 cout << "This station cost " << map.grid[position].GetValue() << " dollars" << "\n";
                 cout << "yes to buy, no to not buy" << "\n";
                 cout << "----------------" << "\n";
+				popout = true;
 				while (!getanswer) {
 					cout << "";
 				}
@@ -324,6 +329,7 @@ void Game::Event(int position, int player_num) {
                 cout << "This infrastructure cost " << map.grid[position].GetValue() << " dollars" << "\n";
                 cout << "yes to buy, no to not buy" << "\n";
                 cout << "----------------" << "\n";
+				popout = true;
 				while (!getanswer) {
 					cout << "";
 				}
@@ -389,6 +395,7 @@ void Game::Event(int position, int player_num) {
             cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
             cout << "1 to cost 2000, 2 to cost 10%" << "\n";
             cout << "----------------" << "\n";
+			popout = true;
 			while (!getanswer) {
 				cout << "";
 			}
@@ -423,6 +430,7 @@ void Game::Event(int position, int player_num) {
         cout << "----------------" << "\n";
         cout << "1 to go jail, 2 to visit" << "\n";
         cout << "----------------" << "\n";
+		popout = true;
 		while (!getanswer) {
 			cout << "";
 		}

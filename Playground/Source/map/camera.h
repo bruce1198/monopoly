@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "util.h"
+#include "../util.h"
 
 using namespace std;
 using namespace glm;
@@ -133,6 +133,7 @@ public:
 		gosideview = false;
 		goplayerview = false;
 		currentview = 0;
+		pleasechoose = false;
 		for (bool& d : direction) {
 			d = false;
 		}
