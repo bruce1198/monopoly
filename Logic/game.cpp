@@ -1,7 +1,10 @@
 #include "game.h"
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <math.h>
+#include <random>       // std::default_random_engine
+#include <chrono>       // std::chrono::system_clock
 
 using namespace std;
 
@@ -11,6 +14,22 @@ Game::Game(int num_of_player) {
         player.push_back(Player());
     }
     // player.resize(num_of_player);
+    for(int card_iter = 0; card_iter < NUM_OF_CARD; card_iter++) {
+        opportunity_fix.push_back(card_iter);
+        fate_fix.push_back(card_iter);
+    }
+    ShuffleFate();
+    ShuffleOpportunity();
+}
+void Game::ShuffleFate() {
+    fate_random = vector<int>(fate_fix);
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    shuffle(fate_random.begin(), fate_random.end(), default_random_engine(seed));
+}
+void Game::ShuffleOpportunity() {
+    opportunity_random = vector<int>(fate_fix);
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    shuffle(opportunity_random.begin(), opportunity_random.end(), default_random_engine(seed));
 }
 void Game::ReturnAsset(int player_num) {
     for(int iter = 0; iter < player[player_num].grid_red.size(); iter++) {
@@ -61,6 +80,15 @@ void Game::Run() {
                         player[player_iter].LeaveJail();
                     }
                 }
+                if(player[player_iter].GetIsRest()) {
+                    player[player_iter].SetRestDay(player[player_iter].GetRestDay() + 1);
+                    cout << "----------------" << "\n";
+                    cout << "Player is in jail day " << player[player_iter].GetRestDay() << "\n";
+                    cout << "----------------" << "\n";
+                    if(player[player_iter].GetRestDay() > 1) {
+                        player[player_iter].LeaveRest();
+                    }
+                }
                 while(player[player_iter].GetOneMore()) {
                     int num_of_move = player[player_iter].ThrowDice();
                     if(player[player_iter].GetInJail()) {
@@ -107,6 +135,7 @@ void Game::Event(int position, int player_num) {
     string option;
     int toll = 0;
     int cost_build = 0; // cost to build house
+    int card; // for opportunity and fate card
     switch (map.grid[position].GetLabel())
     {
     // land
@@ -308,8 +337,167 @@ void Game::Event(int position, int player_num) {
         }
         break;
     case opportunity:
+        card = opportunity_random.back();
+        opportunity_random.pop_back();
+        switch (card)
+        {
+        case 0:
+            cout << "----------------" << "\n";
+            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
+            cout << "----------------" << "\n";
+            player[player_num].SetMoney(player[player_num].GetMoney() - 200);
+            cout << "----------------" << "\n";
+            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
+            cout << "----------------" << "\n";
+            break;
+        case 1:
+            cout << "----------------" << "\n";
+            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
+            cout << "----------------" << "\n";
+            player[player_num].SetMoney(player[player_num].GetMoney() + 200);
+            cout << "----------------" << "\n";
+            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
+            cout << "----------------" << "\n";
+            break;
+        case 2:
+            /* code */
+            break;
+        case 3:
+            /* code */
+            break;
+        case 4:
+            /* code */
+            break;
+        case 5:
+            /* code */
+            break;
+        case 6:
+            /* code */
+            break;
+        case 7:
+            /* code */
+            break;
+        case 8:
+            /* code */
+            break;
+        case 9:
+            /* code */
+            break;
+        case 10:
+            /* code */
+            break;
+        case 11:
+            /* code */
+            break;
+        case 12:
+            /* code */
+            break;
+        case 13:
+            /* code */
+            break;
+        case 14:
+            /* code */
+            break;
+        case 15:
+            /* code */
+            break;
+        case 16:
+            /* code */
+            break;
+        case 17:
+            /* code */
+            break;
+        case 18:
+            /* code */
+            break;
+        case 19:
+            /* code */
+            break;
+        default:
+            break;
+        }
+        if(opportunity_random.empty()) {
+            ShuffleOpportunity();
+        }
         break;
     case fate:
+        card = fate_random.back();
+        fate_random.pop_back();
+        switch (card)
+        {
+        case 0:
+            // rest one turn
+            player[player_num].Rest();
+            break;
+        case 1:
+            cout << "----------------" << "\n";
+            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
+            cout << "----------------" << "\n";
+            player[player_num].SetMoney(player[player_num].GetMoney() - 1000);
+            cout << "----------------" << "\n";
+            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
+            cout << "----------------" << "\n";
+            break;
+        case 2:
+            /* code */
+            break;
+        case 3:
+            /* code */
+            break;
+        case 4:
+            /* code */
+            break;
+        case 5:
+            /* code */
+            break;
+        case 6:
+            /* code */
+            break;
+        case 7:
+            /* code */
+            break;
+        case 8:
+            /* code */
+            break;
+        case 9:
+            /* code */
+            break;
+        case 10:
+            /* code */
+            break;
+        case 11:
+            /* code */
+            break;
+        case 12:
+            /* code */
+            break;
+        case 13:
+            /* code */
+            break;
+        case 14:
+            /* code */
+            break;
+        case 15:
+            /* code */
+            break;
+        case 16:
+            /* code */
+            break;
+        case 17:
+            /* code */
+            break;
+        case 18:
+            /* code */
+            break;
+        case 19:
+            /* code */
+            break;
+        default:
+            break;
+        }
+        if(fate_random.empty()) {
+            ShuffleOpportunity();
+        }
         break;
     case jail:
         player[player_num].GoJail();

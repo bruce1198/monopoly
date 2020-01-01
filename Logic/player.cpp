@@ -89,7 +89,13 @@ void Player::Move(int num_of_move) {
     }
     
 }
-
+void Player::Rest() {
+    is_rest = true;
+    one_more = false;
+}
+void Player::LeaveRest() {
+    is_rest = false;
+}
 void Player::GoJail() {
     in_jail = true;
     position = 10;

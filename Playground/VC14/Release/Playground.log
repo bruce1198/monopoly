@@ -1,0 +1,35 @@
+﻿  game.cpp
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(27): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(30): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(33): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(36): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(39): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(42): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(45): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(48): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(51): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(54): warning C4018: '<': signed/unsigned 不相符
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(213): warning C4244: '=': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(231): warning C4244: '=': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(304): warning C4244: '=': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\game.cpp(408): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+  grid.cpp
+  logicmap.cpp
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\logicmap.cpp(96): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\logicmap.cpp(100): warning C4244: '引數': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+  player.cpp
+c:\users\zunzzz\desktop\monopoly\playground\source\logic\player.cpp(69): warning C4244: '引數': 將 'time_t' 轉換為 'unsigned int'，由於類型不同，可能導致資料遺失
+  main.cpp
+c:\users\zunzzz\desktop\monopoly\playground\include\tinyobj\tiny_obj_loader.h(1092): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(2263): note: 請參閱 'sscanf' 的宣告
+c:\users\zunzzz\desktop\monopoly\playground\include\tinyobj\tiny_obj_loader.h(1116): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(2263): note: 請參閱 'sscanf' 的宣告
+c:\users\zunzzz\desktop\monopoly\playground\source\util.h(33): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(208): note: 請參閱 'fopen' 的宣告
+c:\users\zunzzz\desktop\monopoly\playground\source\window\popupwindow.h(56): warning C4305: '正在初始化': 從 'double' 轉換為 'const float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+c:\users\zunzzz\desktop\monopoly\playground\source\window\popupwindow.h(88): warning C4305: '正在初始化': 從 'double' 轉換為 'const float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+c:\users\zunzzz\desktop\monopoly\playground\source\window\popupwindow.h(112): warning C4305: '正在初始化': 從 'double' 轉換為 'const float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+  正在產生程式碼
+  All 2228 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成程式碼產生
+  Playground.vcxproj -> C:\Users\zunzzz\Desktop\monopoly\Playground\VC14\Release\Playground.exe
