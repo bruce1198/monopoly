@@ -8,14 +8,17 @@
 
 using namespace std;
 
+
 Game::Game(int num_of_player) {
     this -> num_of_player = num_of_player;
     for(int iter = 0; iter < num_of_player; iter++) {
         player.push_back(Player());
     }
     // player.resize(num_of_player);
-    for(int card_iter = 0; card_iter < NUM_OF_CARD; card_iter++) {
+    for(int card_iter = 0; card_iter < NUM_OF_OPPORTUNITY_CARD; card_iter++) {
         opportunity_fix.push_back(card_iter);
+    }
+    for(int card_iter = 0; card_iter < NUM_OF_FATE_CARD; card_iter++) {
         fate_fix.push_back(card_iter);
     }
     ShuffleFate();
@@ -83,7 +86,7 @@ void Game::Run() {
                 if(player[player_iter].GetIsRest()) {
                     player[player_iter].SetRestDay(player[player_iter].GetRestDay() + 1);
                     cout << "----------------" << "\n";
-                    cout << "Player is in jail day " << player[player_iter].GetRestDay() << "\n";
+                    cout << "Player is in rest day " << player[player_iter].GetRestDay() << "\n";
                     cout << "----------------" << "\n";
                     if(player[player_iter].GetRestDay() > 1) {
                         player[player_iter].LeaveRest();
@@ -136,6 +139,7 @@ void Game::Event(int position, int player_num) {
     int toll = 0;
     int cost_build = 0; // cost to build house
     int card; // for opportunity and fate card
+    int dice_result;
     switch (map.grid[position].GetLabel())
     {
     // land
@@ -314,7 +318,7 @@ void Game::Event(int position, int player_num) {
         // pay toll
         else {
             if(player_num != map.grid[position].GetOwner()) { // not owner
-                int times = player[player_num].ThrowDiceForToll(); // throw dice to how many times tolls are
+                int times = player[player_num].ThrowDice(); // throw dice to how many times tolls are
                 toll = map.grid[position].GetCost() * times; 
 
                 cout << "----------------" << "\n";
@@ -342,76 +346,79 @@ void Game::Event(int position, int player_num) {
         switch (card)
         {
         case 0:
-            cout << "----------------" << "\n";
-            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
-            cout << "----------------" << "\n";
-            player[player_num].SetMoney(player[player_num].GetMoney() - 200);
-            cout << "----------------" << "\n";
-            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
-            cout << "----------------" << "\n";
+            player[player_num].SetMoney(player[player_num].GetMoney() + 600);
             break;
         case 1:
-            cout << "----------------" << "\n";
-            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
-            cout << "----------------" << "\n";
-            player[player_num].SetMoney(player[player_num].GetMoney() + 200);
-            cout << "----------------" << "\n";
-            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
-            cout << "----------------" << "\n";
+            player[player_num].SetMoney(player[player_num].GetMoney() + 500);
             break;
         case 2:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 200);
             break;
         case 3:
-            /* code */
+            if(position < 6) {
+                player[player_num].Move(6 - position);
+            }
+            else {
+                player[player_num].Move(6 + 40 - position);
+            }
             break;
         case 4:
-            /* code */
+            if(position - 3 < 0) {
+                player[player_num].SetPosition(position + 40 - 3);
+            }
+            else {
+                player[player_num].SetPosition(position - 3);
+            }
             break;
         case 5:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 100);
             break;
         case 6:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 600);
             break;
         case 7:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 300);
             break;
         case 8:
-            /* code */
+            player[player_num].Rest();
             break;
         case 9:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 500);
             break;
         case 10:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 300);
             break;
         case 11:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 1000);
             break;
         case 12:
-            /* code */
+            player[player_num].Rest();
             break;
         case 13:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 500);
             break;
         case 14:
-            /* code */
+            player[player_num].Rest();
             break;
         case 15:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 200);
             break;
         case 16:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 100);
             break;
         case 17:
-            /* code */
+            if(position < 15) {
+                player[player_num].Move(15 - position);
+            }
+            else {
+                player[player_num].Move(15 + 40 - position);
+            }
             break;
         case 18:
-            /* code */
+            player[player_num].Move(3);
             break;
         case 19:
-            /* code */
+            player[player_num].GoJail();
             break;
         default:
             break;
@@ -426,72 +433,77 @@ void Game::Event(int position, int player_num) {
         switch (card)
         {
         case 0:
-            // rest one turn
-            player[player_num].Rest();
+            player[player_num].SetMoney(player[player_num].GetMoney() + 200);
             break;
         case 1:
-            cout << "----------------" << "\n";
-            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
-            cout << "----------------" << "\n";
-            player[player_num].SetMoney(player[player_num].GetMoney() - 1000);
-            cout << "----------------" << "\n";
-            cout << "Player" << player_num << " have " << player[player_num].GetMoney() << " dollars" << "\n";
-            cout << "----------------" << "\n";
+            player[player_num].SetMoney(player[player_num].GetMoney() + 200);
             break;
         case 2:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 100);
             break;
         case 3:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 1000);
             break;
         case 4:
-            /* code */
+            player[player_num].Move(2);
             break;
         case 5:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 500);
             break;
         case 6:
-            /* code */
+            player[player_num].Move(3);
             break;
         case 7:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 300);
             break;
         case 8:
-            /* code */
+            player[player_num].SetPosition(0);
             break;
         case 9:
-            /* code */
+            player[player_num].Rest();
             break;
         case 10:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 200);
             break;
         case 11:
-            /* code */
+            if(position < 5) {
+                player[player_num].Move(5 - position);
+            }
+            else {
+                player[player_num].Move(5 + 40 - position);
+            }
             break;
         case 12:
-            /* code */
+            player[player_num].Rest();
             break;
         case 13:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 500);
             break;
         case 14:
-            /* code */
+            player[player_num].Rest();
             break;
         case 15:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 100);
             break;
         case 16:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() + 1000);
             break;
         case 17:
-            /* code */
+            if(position - 1 < 0) {
+                player[player_num].SetPosition(position + 40 - 1);
+            }
+            else {
+                player[player_num].SetPosition(position - 1);
+            }
             break;
         case 18:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 200);
             break;
         case 19:
-            /* code */
+            player[player_num].SetMoney(player[player_num].GetMoney() - 600);
             break;
+        case 20:
+            player[player_num].GoJail();
         default:
             break;
         }
@@ -537,29 +549,15 @@ void Game::Event(int position, int player_num) {
         // do nothing
         break;
     case jail_visit:
-        cout << "----------------" << "\n";
-        cout << "1 to go jail, 2 to visit" << "\n";
-        cout << "----------------" << "\n";
-        cin >> option;
-        if(option == "1") {
+        dice_result = player[player_num].ThrowDice();
+        if(dice_result % 2 == 0) {
             player[player_num].GoJail();
         }
-        else if(option == "2") {
+        else if(dice_result % 2 == 1) {
             // do nothing
         }
         break;
     default:
         break;
-    }
-}
-void Game::Show() {
-    // cout << num_of_player << "\n";
-    for(int player_iter = 0; player_iter < num_of_player; player_iter++){
-        // cout << player[player_iter].GetMoney() << "\n";
-        // cout << player[player_iter].GetPosition() << "\n";
-    }
-    for(int grid_iter = 0; grid_iter < NUM_OF_GRID; grid_iter++){
-        // cout << map.GetGrid()[grid_iter].GetLabel() << "\n";
-        cout << map.grid[grid_iter].GetValue() << "\n";
     }
 }

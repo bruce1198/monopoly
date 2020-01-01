@@ -1,6 +1,7 @@
 #ifndef _GAME_H_
 #define _GAME_H_
-#define NUM_OF_CARD 20
+#define NUM_OF_OPPORTUNITY_CARD 20
+#define NUM_OF_FATE_CARD 20
 #include <vector>
 #include "player.h"
 #include "map.h"

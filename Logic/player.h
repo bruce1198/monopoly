@@ -61,7 +61,7 @@ public:
     void Move(int);
     void Rest();
     void LeaveRest();
-    int ThrowDiceForToll();
+    int ThrowDice();
     vector<int> grid_red;
     vector<int> grid_orange;
     vector<int> grid_yellow;
