@@ -21,6 +21,8 @@ public:
 	GLuint vaoPanel;
 	GLuint vaoButton_YES;
 	GLuint vaoButton_NO;
+	GLuint vaoPostionName;
+	GLuint vaoPrice;
 	mat4 mvp;
 	// vec2 texOffset;
 
@@ -119,6 +121,53 @@ public:
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
+		//postionName VAO
+		glGenVertexArrays(1, &vaoPostionName);
+		glBindVertexArray(vaoPostionName);
+
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		const float vertexData4[] =
+		{
+			0.0, 0.3, 0.0, 1.0,
+			0.0, 0.5, 0.0, 1.0,
+			0.4, 0.3, 0.0, 1.0,
+			0.4, 0.5, 0.0, 1.0,
+		};
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData4), vertexData4, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glGenBuffers(1, &texcoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(texcoordData), texcoordData, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		//Price VAO
+		glGenVertexArrays(1, &vaoPrice);
+		glBindVertexArray(vaoPrice);
+
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		const float vertexData5[] =
+		{
+			0.0, 0.1, 0.0, 1.0,
+			0.0, 0.3, 0.0, 1.0,
+			0.4, 0.1, 0.0, 1.0,
+			0.4, 0.3, 0.0, 1.0,
+		};
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData5), vertexData5, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glGenBuffers(1, &texcoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(texcoordData), texcoordData, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
 	}
 
 	void draw(GLuint program, GLuint texturePanel, GLuint textureNormalBtn_YES, GLuint textureNormalBtn_NO, 
@@ -184,6 +233,93 @@ public:
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		glBindVertexArray(0);
+
+		glDisable(GL_BLEND);
+		glUseProgram(0);
+	}
+
+	void drawPurchase(GLuint program, GLuint texturePanel, GLuint textureNormalBtn_YES, GLuint textureNormalBtn_NO,
+		GLuint textureClickedBtn_YES, GLuint textureClickedBtn_NO, vec2 mousePos, vec2 currentWH, GLuint texturePositionName, GLuint texturePrice) {
+		if (wantOpen) {
+			if (windowScale < 1.0f) {
+				windowScale += 0.1f;
+				mvp = scale(mat4(), vec3(windowScale));
+			}
+		}
+		else {
+			if (windowScale > 0.0f) {
+				windowScale -= 0.1f;
+				mvp = scale(mat4(), vec3(windowScale));
+			}
+		}
+		if (windowScale == 0.0f) {
+			return;
+		}
+
+		glUseProgram(program);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glBindVertexArray(vaoPanel);
+
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texturePanel);
+			glUniform1i(m_Uniform.tex, 0);
+			// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindVertexArray(0);
+		glBindVertexArray(vaoButton_YES);
+
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			if (check(mousePos, currentWH) == 1) {
+				glBindTexture(GL_TEXTURE_2D, textureClickedBtn_YES);
+			}
+			else {
+				glBindTexture(GL_TEXTURE_2D, textureNormalBtn_YES);
+			}
+			glUniform1i(m_Uniform.tex, 0);
+			// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindVertexArray(0);
+		glBindVertexArray(vaoButton_NO);
+
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			if (check(mousePos, currentWH) == 2) {
+				glBindTexture(GL_TEXTURE_2D, textureClickedBtn_NO);
+			}
+			else {
+				glBindTexture(GL_TEXTURE_2D, textureNormalBtn_NO);
+			}
+
+			glUniform1i(m_Uniform.tex, 0);
+			// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindVertexArray(0);
+		glBindVertexArray(vaoPostionName);
+
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texturePositionName);
+			glUniform1i(m_Uniform.tex, 0);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindVertexArray(0);
+		glBindVertexArray(vaoPrice);
+
+		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texturePrice);
+		glUniform1i(m_Uniform.tex, 0);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindVertexArray(0);
+
 
 		glDisable(GL_BLEND);
 		glUseProgram(0);

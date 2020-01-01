@@ -2,6 +2,7 @@
 #include "../Externals/Include/myHeader/shader.h"
 #include "../Externals/Include/myHeader/PopUpWindow.h"
 #include "../Externals/Include/myHeader/texture.h"
+#include "../Externals/Include/myHeader/chess.h"
 
 #define MENU_TIMER_START 1
 #define MENU_TIMER_STOP 2
@@ -24,6 +25,12 @@ Texture2D textureNormalBtn_NO;
 Texture2D textureClickedBtn_YES;
 Texture2D textureClickedBtn_NO;
 
+Texture2D texturePositionName[41];
+Texture2D texturePrice[41];
+
+Shader shaderChess;
+Chess m_Chess;
+
 
 void My_Init()
 {
@@ -39,14 +46,27 @@ void My_Init()
 	textureNormalBtn_NO.init("Image/ButtonNormal_CNO.png");
 	textureClickedBtn_YES.init("Image/ButtonClicked_CYES.png");
 	textureClickedBtn_NO.init("Image/ButtonClicked_CNO.png");
+
+	shaderChess.init("GLSL/Chess_vertex.vs.glsl", "GLSL/Chess_fragment.fs.glsl");
+	m_Chess.init(shaderChess.program);
+
+	for (int i = 1; i <= 40; i++) {
+		texturePositionName[i].init("Image/positionName/positionName_" + to_string(i) + ".png"); //start from 1 to 40
+	}
+	for (int i = 1; i <= 40; i++) {
+		texturePrice[i].init("Image/price/price_" + to_string(i) + ".png"); //start from 1 to 40
+	}
 }
 
 void My_Display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_PopUpWindow.draw(shaderPopUpWindow.program, texturePopUpWindow.texture, textureNormalBtn_YES.texture, textureNormalBtn_NO.texture,
-		textureClickedBtn_YES.texture, textureClickedBtn_NO.texture, mousePos, currentWH);
+	/*m_PopUpWindow.draw(shaderPopUpWindow.program, texturePopUpWindow.texture, textureNormalBtn_YES.texture, textureNormalBtn_NO.texture,
+		textureClickedBtn_YES.texture, textureClickedBtn_NO.texture, mousePos, currentWH);*/
+	m_PopUpWindow.drawPurchase(shaderPopUpWindow.program, texturePopUpWindow.texture, textureNormalBtn_YES.texture, textureNormalBtn_NO.texture,
+		textureClickedBtn_YES.texture, textureClickedBtn_NO.texture, mousePos, currentWH, texturePositionName[28].texture, texturePrice[28].texture);//TODO replace index
+	m_Chess.draw(shaderChess.program);
 
     glutSwapBuffers();
 }
