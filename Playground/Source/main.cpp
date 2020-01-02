@@ -1,3 +1,4 @@
+#include "chess/chess.h"
 #include "dice/dice.h"
 #include "card/card.h"
 #include "map/map.h"
@@ -20,12 +21,14 @@ GLfloat screenWidth = 1600;
 GLfloat screenHeight = 900;
 //game object
 Game game;
+vector<Chess> chess;
 DiceGroup dg;
 CardGroup cg;
 Map mymap;
 Camera camera;
 PopUpWindow window;
 //shader
+Shader chess_shader;
 Shader dice_shader;
 Shader card_shader;
 Shader map_shader;
@@ -45,6 +48,7 @@ void My_Init()
 	glDepthFunc(GL_LEQUAL);
 
 	srand((unsigned int)time(NULL));
+	chess_shader = Shader("chess/chess.vertex", "chess/chess.fragment");
 	dice_shader = Shader("dice/dice.vertex", "dice/dice.fragment");
 	card_shader = Shader("card/card.vertex", "card/card.fragment");
 	map_shader = Shader("map/map.vertex", "map/map.fragment");
@@ -52,6 +56,9 @@ void My_Init()
 	depth_shader = Shader("depth.vertex", "depth.fragment");
 	shadow_shader = Shader("shadow.vertex", "shadow.fragment");
 	game = Game(2);
+	for (int i = 0; i < 2; i++) {
+		chess.push_back(Chess(chess_shader.getProgram(), i));
+	}
 	dg = DiceGroup(2);
 	cg = CardGroup(20);
 	mymap = Map("map/map.png");
@@ -90,6 +97,17 @@ void My_Display()
 
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(4.0f, 4.0f);
+	//draw chess
+	for (Chess&c : chess) {
+		glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
+		c.setView(light_view_matrix);
+		//c.draw(depth_shader.getProgram(), true);
+	}
+	//draw card
+	glUniformMatrix4fv(glGetUniformLocation(card_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
+	cg.setView(light_view_matrix);
+	cg.draw(card_shader.getProgram());
+	//draw dice
 	glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
 	dg.setView(light_view_matrix);
 	dg.draw(depth_shader.getProgram());
@@ -105,6 +123,13 @@ void My_Display()
 	mat4 view = camera.getViewMatrix();
 	GLfloat viewportAspect = screenWidth / screenHeight;
 	mat4 projection = perspective(camera.getZoom(), viewportAspect, 0.1f, 10000.0f);
+	//draw chess
+	for (Chess&c : chess) {
+		c.setLightPos(vec3(-4, 20, 10));
+		c.setProj(projection);
+		c.setView(view);
+		c.draw(chess_shader.getProgram(), false);
+	}
 	//draw dice
 	dice_shader.use();
 	glUniformMatrix4fv(glGetUniformLocation(dice_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
@@ -129,11 +154,15 @@ void My_Display()
 	glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
 	mymap.setView(view);
 	mymap.draw(shadow_shader.getProgram(), false);
-	/*shadow_matrix = shadow_sbpv_matrix * dg.getModel();
-	glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "shadow_matrix"), 1, GL_FALSE, value_ptr(shadow_matrix));
-	glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
-	dg.setView(view);
-	dg.draw(shadow_shader.getProgram());*/
+	//
+	vector<Dice> group = dg.getGroup();
+	for (Dice&d : group) {
+		shadow_matrix = shadow_sbpv_matrix * d.getModelMatrix();
+		glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "shadow_matrix"), 1, GL_FALSE, value_ptr(shadow_matrix));
+		glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4mv"), 1, GL_FALSE, value_ptr(view*d.getModelMatrix()));
+		d.draw(); 
+	}
 	//draw window
 	window.draw(window_shader.getProgram(), mousePos, currentWH);
 	//--
@@ -153,6 +182,7 @@ void My_Reshape(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadow_buffer.texture, 0);
 }
+int index;
 void My_Timer(int val) {
 	glutPostRedisplay();
 	//update
@@ -197,7 +227,7 @@ void My_Timer(int val) {
 		}
 		if (game.goWalk) {
 			game.goWalk = false;
-			int index = game.from;
+			index = game.from;
 			camera.goPlayerView(index);
 			camera.movePlayerView(index, step);
 			index += step;
@@ -205,7 +235,9 @@ void My_Timer(int val) {
 		game.response = false;
 	}
 	if (done) {
+		cout << "done" << endl;
 		game.movedone = true;
+		chess[game.doneidx].setPos(index);
 	}
 	if (dis) {
 		cout << "card discard" << endl;
@@ -238,12 +270,16 @@ void My_SpecialKeys(int key, int x, int y)
 	case GLUT_KEY_PAGE_UP:
 		break;
 	case GLUT_KEY_LEFT:
+		//chess[0].setPos(chess[0].getPos()-1);
 		break;
 	case GLUT_KEY_RIGHT:
+		//chess[0].setPos(chess[0].getPos() + 1);
 		break;
 	case GLUT_KEY_UP:
+		//chess[1].setPos(chess[1].getPos() + 1);
 		break;
 	case GLUT_KEY_DOWN:
+		//chess[1].setPos(chess[1].getPos() - 1);
 		break;
 	default:
 		break;

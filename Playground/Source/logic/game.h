@@ -33,6 +33,7 @@ public:
 	bool getcard;
 	int cardtype;
 	int cardidx;
+	int doneidx;
 	//go in
 	bool canThrow;
 	bool getPoints;
