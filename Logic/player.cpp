@@ -65,7 +65,7 @@ int Player::ThrowDice() {
     return dice_one + dice_two;
 }
 
-int Player::ThrowDice() {
+int Player::PureThrowDice() {
     srand(time(NULL));
     int max = 6;
     int min = 1;
