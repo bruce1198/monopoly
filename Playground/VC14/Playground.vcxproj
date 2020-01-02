@@ -14,7 +14,7 @@
     <ProjectGuid>{F8376344-4D88-4DBC-832B-7D4BB528FA40}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>QuizFramework</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -86,18 +86,29 @@
     <ClCompile Include="..\Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\camera.h" />
+    <ClInclude Include="..\Source\card\card.h" />
     <ClInclude Include="..\Source\dice\dice.h" />
     <ClInclude Include="..\Source\logic\game.h" />
     <ClInclude Include="..\Source\logic\grid.h" />
     <ClInclude Include="..\Source\logic\logicmap.h" />
     <ClInclude Include="..\Source\logic\player.h" />
-    <ClInclude Include="..\Source\map\camera.h" />
     <ClInclude Include="..\Source\map\map.h" />
     <ClInclude Include="..\Source\util.h" />
     <ClInclude Include="..\Source\window\PopUpWindow.h" />
     <ClInclude Include="..\Source\window\texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Assets\card\card.fragment" />
+    <None Include="..\Assets\card\card.vertex" />
+    <None Include="..\Assets\depth.fragment" />
+    <None Include="..\Assets\depth.vertex" />
+    <None Include="..\Assets\dice\dice.fragment" />
+    <None Include="..\Assets\dice\dice.vertex" />
+    <None Include="..\Assets\map\map.fragment" />
+    <None Include="..\Assets\map\map.vertex" />
+    <None Include="..\Assets\shadow.fragment" />
+    <None Include="..\Assets\shadow.vertex" />
     <None Include="..\Assets\window\window.fragment" />
     <None Include="..\Assets\window\window.vertex" />
   </ItemGroup>

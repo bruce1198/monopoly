@@ -2,7 +2,7 @@
 #pragma once
 
 #include "util.h"
-#include "camera.h"
+#include "../camera.h"
 
 using namespace glm;
 using namespace std;
@@ -15,17 +15,18 @@ private:
 	GLuint tex;
     mat4 view;
     GLfloat degree;
+	mat4 model;
 public:
 	Map() {
 
 	}
-	Map(const char* file, const char* tex_file) {
+	Map(const char* tex_file) {
 		vector<shape_t> shapes;
 		vector<material_t> materials;
 
 		string err;
 
-		LoadObj(shapes, materials, err, file);
+		LoadObj(shapes, materials, err, "map/Plane.obj");
 		if (err.size() > 0) {
 			printf("Load Models Fail! Please check the solution path");
 			return;
@@ -59,7 +60,7 @@ public:
 			s[i].materialId = shapes[i].mesh.material_ids[0];
 			s[i].indexCount = static_cast<int>(shapes[i].mesh.indices.size());
 		}
-		TextureData tdata = load_png(tex_file);
+		TextureData tdata = load_png(tex_file, true);
 
 		glGenTextures(1, &tex);
 		glBindTexture(GL_TEXTURE_2D, tex);
@@ -69,23 +70,27 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        focus(0);
+		init();
 	}
     void setView(mat4 view) {
         this->view = view;
     }
-    void focus(int index) {
-        if(index<10) {
-            degree = 270;
-        }
+    void init() {
+		model = rotate(mat4(), radians(270.0f), vec3(0, 1, 0));
     }
-	void draw(GLuint program) {
+	void draw(GLuint program, bool draw_tex) {
 		for (int i = 0; i < shape_size; i++) {
 			glBindVertexArray(s[i].vao);
-			glBindTexture(GL_TEXTURE_2D, tex);
-            mat4 model = rotate(mat4(), radians(degree), vec3(0, 1, 0));
+			if(draw_tex)
+				glBindTexture(GL_TEXTURE_2D, tex);
             glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view * model));
 			glDrawElements(GL_TRIANGLES, s[i].indexCount, GL_UNSIGNED_INT, 0);
 		}
+	}
+	int getSize() {
+		return shape_size;
+	}
+	mat4 getModel() {
+		return model;
 	}
 };

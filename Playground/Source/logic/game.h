@@ -1,5 +1,7 @@
 #ifndef _GAME_H_
 #define _GAME_H_
+#define NUM_OF_OPPORTUNITY_CARD 20
+#define NUM_OF_FATE_CARD 20
 #include <vector>
 #include "player.h"
 #include "logicmap.h"
@@ -12,6 +14,8 @@ public:
     void Event(int, int);
     void ReturnAsset(int);
     void GameOver();
+	void ShuffleOpportunity();
+	void ShuffleFate();
     int GetNumOfPlayer() {
         return num_of_player;
     }
@@ -22,9 +26,13 @@ public:
 	bool goThrow;
 	bool goWalk;
 	bool goSide;
+	bool goTop;
 	int from;
 	bool response;
 	bool popout;
+	bool getcard;
+	int cardtype;
+	int cardidx;
 	//go in
 	bool canThrow;
 	bool getPoints;
@@ -32,11 +40,16 @@ public:
 	int* point;
 	int answer;
 	bool getanswer;
+	bool getcarddone;
     
 private:
     vector<Player> player;
     LogicMap map;
     int num_of_player;
     bool is_gameover = false;
+	vector<int> opportunity_fix;
+	vector<int> opportunity_random;
+	vector<int> fate_fix;
+	vector<int> fate_random;
 };
 #endif

@@ -2,6 +2,9 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <algorithm>
+#include <random>       // std::default_random_engine
+#include <chrono>       // std::chrono::system_clock
 
 using namespace std;
 Game::Game() {
@@ -12,16 +15,37 @@ Game::Game(int num_of_player) {
     for(int iter = 0; iter < num_of_player; iter++) {
         player.push_back(Player());
     }
+	// player.resize(num_of_player);
+	for (int card_iter = 0; card_iter < NUM_OF_OPPORTUNITY_CARD; card_iter++) {
+		opportunity_fix.push_back(card_iter);
+	}
+	for (int card_iter = 0; card_iter < NUM_OF_FATE_CARD; card_iter++) {
+		fate_fix.push_back(card_iter);
+	}
+	ShuffleFate();
+	ShuffleOpportunity();
 	goThrow = false;
 	goWalk = false;
 	getPoints = false;
+	goTop = false;
 	goSide = false;
 	canThrow = false;
 	response = false;
 	movedone = false;
 	getanswer = false;
 	popout = false;
+	getcard = false;
     // player.resize(num_of_player);
+}
+void Game::ShuffleFate() {
+	fate_random = vector<int>(fate_fix);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle(fate_random.begin(), fate_random.end(), default_random_engine(seed));
+}
+void Game::ShuffleOpportunity() {
+	opportunity_random = vector<int>(opportunity_fix);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle(opportunity_random.begin(), opportunity_random.end(), default_random_engine(seed));
 }
 void Game::ReturnAsset(int player_num) {
     for(int iter = 0; iter < player[player_num].grid_red.size(); iter++) {
@@ -78,6 +102,8 @@ void Game::Run() {
 					movedone = false;
 					getanswer = false;
 					response = false;
+					getcard = false;
+					getcarddone = false;
 					from = player[player_iter].GetPosition();
 					//cout << "player" << player_iter << " position: " <<from << endl;
 					while (!canThrow) {
@@ -122,7 +148,7 @@ void Game::Run() {
                             break;
                         }
                     }
-					goSide = true;
+					goTop = true;
                     //system("pause");
                 }
                 if(is_gameover) {
@@ -137,9 +163,11 @@ void Game::GameOver() {
     cout << "GAMEOVER" << "\n";
 }
 void Game::Event(int position, int player_num) {
-    string option;
-    int toll = 0;
-    int cost_build = 0; // cost to build house
+	string option;
+	int toll = 0;
+	int cost_build = 0; // cost to build house
+	int card; // for opportunity and fate card
+	int dice_result;
     switch (map.grid[position].GetLabel())
     {
     // land
@@ -358,7 +386,8 @@ void Game::Event(int position, int player_num) {
         // pay toll
         else {
             if(player_num != map.grid[position].GetOwner()) { // not owner
-                int times = player[player_num].ThrowDiceForToll(); // throw dice to how many times tolls are
+				//TODO
+                int times = player[player_num].PureThrowDice(1, 1); // throw dice to how many times tolls are
                 toll = map.grid[position].GetCost() * times; 
 
                 cout << "----------------" << "\n";
@@ -380,10 +409,193 @@ void Game::Event(int position, int player_num) {
             }
         }
         break;
-    case opportunity:
-        break;
-    case fate:
-        break;
+	case opportunity:
+		//TODO card
+		card = opportunity_random.back();
+		getcard = true;
+		cardtype = 0;
+		cardidx = card;
+		goSide = true;
+		opportunity_random.pop_back();
+		while (!getcarddone) {
+			cout << "";
+		}
+		switch (card)
+		{
+		case 0:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 600);
+			break;
+		case 1:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 500);
+			break;
+		case 2:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 200);
+			break;
+		case 3:
+			if (position < 6) {
+				player[player_num].Move(6 - position);
+			}
+			else {
+				player[player_num].Move(6 + 40 - position);
+			}
+			break;
+		case 4:
+			if (position - 3 < 0) {
+				player[player_num].SetPosition(position + 40 - 3);
+			}
+			else {
+				player[player_num].SetPosition(position - 3);
+			}
+			break;
+		case 5:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 100);
+			break;
+		case 6:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 600);
+			break;
+		case 7:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 300);
+			break;
+		case 8:
+			player[player_num].Rest();
+			break;
+		case 9:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 500);
+			break;
+		case 10:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 300);
+			break;
+		case 11:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 1000);
+			break;
+		case 12:
+			player[player_num].Rest();
+			break;
+		case 13:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 500);
+			break;
+		case 14:
+			player[player_num].Rest();
+			break;
+		case 15:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 200);
+			break;
+		case 16:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 100);
+			break;
+		case 17:
+			if (position < 15) {
+				player[player_num].Move(15 - position);
+			}
+			else {
+				player[player_num].Move(15 + 40 - position);
+			}
+			break;
+		case 18:
+			player[player_num].Move(3);
+			break;
+		case 19:
+			player[player_num].GoJail();
+			break;
+		default:
+			break;
+		}
+		if (opportunity_random.empty()) {
+			ShuffleOpportunity();
+		}
+		break;
+	case fate:
+		//TODO card
+		card = fate_random.back();
+		getcard = true;
+		cardtype = 1;
+		cardidx = card;
+		goSide = true;
+		fate_random.pop_back();
+		while (!getcarddone) {
+			cout << "";
+		}
+		switch (card)
+		{
+		case 0:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 200);
+			break;
+		case 1:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 200);
+			break;
+		case 2:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 100);
+			break;
+		case 3:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 1000);
+			break;
+		case 4:
+			player[player_num].Move(2);
+			break;
+		case 5:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 500);
+			break;
+		case 6:
+			player[player_num].Move(3);
+			break;
+		case 7:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 300);
+			break;
+		case 8:
+			player[player_num].SetPosition(0);
+			break;
+		case 9:
+			player[player_num].Rest();
+			break;
+		case 10:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 200);
+			break;
+		case 11:
+			if (position < 5) {
+				player[player_num].Move(5 - position);
+			}
+			else {
+				player[player_num].Move(5 + 40 - position);
+			}
+			break;
+		case 12:
+			player[player_num].Rest();
+			break;
+		case 13:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 500);
+			break;
+		case 14:
+			player[player_num].Rest();
+			break;
+		case 15:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 100);
+			break;
+		case 16:
+			player[player_num].SetMoney(player[player_num].GetMoney() + 1000);
+			break;
+		case 17:
+			if (position - 1 < 0) {
+				player[player_num].SetPosition(position + 40 - 1);
+			}
+			else {
+				player[player_num].SetPosition(position - 1);
+			}
+			break;
+		case 18:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 200);
+			break;
+		case 19:
+			player[player_num].SetMoney(player[player_num].GetMoney() - 600);
+			break;
+		case 20:
+			player[player_num].GoJail();
+		default:
+			break;
+		}
+		if (fate_random.empty()) {
+			ShuffleOpportunity();
+		}
+		break;
     case jail:
         player[player_num].GoJail();
         break;
@@ -426,23 +638,16 @@ void Game::Event(int position, int player_num) {
     case park:
         // do nothing
         break;
-    case jail_visit:
-        cout << "----------------" << "\n";
-        cout << "1 to go jail, 2 to visit" << "\n";
-        cout << "----------------" << "\n";
-		popout = true;
-		while (!getanswer) {
-			cout << "";
+	case jail_visit:
+		//TODO
+		dice_result = player[player_num].ThrowDice(1,1);
+		if (dice_result % 2 == 0) {
+			player[player_num].GoJail();
 		}
-		option = answer;
-		cout << answer << endl;
-        if(option == "1") {
-            player[player_num].GoJail();
-        }
-        else if(option == "2") {
-            // do nothing
-        }
-        break;
+		else if (dice_result % 2 == 1) {
+			// do nothing
+		}
+		break;
     default:
         break;
     }

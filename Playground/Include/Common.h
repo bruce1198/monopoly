@@ -118,11 +118,11 @@ typedef struct _TextureData
 	unsigned char* data;
 } TextureData;
 
-TextureData load_png(const char* path)
+TextureData load_png(const char* path, bool flip)
 {
 	TextureData texture;
 	int n;
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(flip);
 	stbi_uc *data = stbi_load(path, &texture.width, &texture.height, &n, 4);
 	if(data != NULL)
 	{

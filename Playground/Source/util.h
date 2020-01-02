@@ -4,9 +4,29 @@
 #include <vector>
 #include <time.h>
 #include <math.h>
+#define SHADOW_MAP_SIZE 4096
 
 using namespace glm;
 using namespace std;
+
+struct P {
+	vec3 pos;
+	vec3 degree;
+	GLfloat yaw;
+	GLfloat pitch;
+};
+struct A {
+	vec3 pos;
+	vec3 degree;
+	GLfloat yaw;
+	GLfloat pitch;
+};
+struct V {
+	vec3 pos;
+	vec3 degree;
+	GLfloat yaw;
+	GLfloat pitch;
+};
 
 typedef struct
 {
@@ -20,6 +40,12 @@ typedef struct
 	int indexCount;
 	GLuint m_texture;
 } Shape;
+
+struct Fbo {
+	GLuint fbo;
+	GLuint rbo;
+	GLuint texture;
+};
 
 void print(vec3 target) {
 	cout << "(" << target.x << ", " << target.y << ", " << target.z << ")" << endl;
