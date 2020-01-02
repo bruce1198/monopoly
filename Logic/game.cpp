@@ -318,7 +318,7 @@ void Game::Event(int position, int player_num) {
         // pay toll
         else {
             if(player_num != map.grid[position].GetOwner()) { // not owner
-                int times = player[player_num].ThrowDice(); // throw dice to how many times tolls are
+                int times = player[player_num].PureThrowDice(); // throw dice to how many times tolls are
                 toll = map.grid[position].GetCost() * times; 
 
                 cout << "----------------" << "\n";
@@ -549,7 +549,7 @@ void Game::Event(int position, int player_num) {
         // do nothing
         break;
     case jail_visit:
-        dice_result = player[player_num].ThrowDice();
+        dice_result = player[player_num].PureThrowDice();
         if(dice_result % 2 == 0) {
             player[player_num].GoJail();
         }
