@@ -53,7 +53,7 @@ void My_Init()
 	shadow_shader = Shader("shadow.vertex", "shadow.fragment");
 	game = Game(2);
 	dg = DiceGroup(2);
-	cg = CardGroup(1);
+	cg = CardGroup(20);
 	mymap = Map("map/map.png");
 	camera = Camera(vec3(0, 15, 0), vec3(0, 1, 0), 0, -30);
 	window = PopUpWindow(window_shader.getProgram());

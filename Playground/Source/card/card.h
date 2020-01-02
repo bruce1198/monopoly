@@ -17,11 +17,13 @@ private:
 	GLint type;
 	mat4 model;
 	GLint idx;
+	GLint h;
 	bool wait;
 	bool waitdiscard;
 	bool slide;
 	bool gocent;
 	bool discard;
+	bool isdiscarded;
 	GLfloat cnt;
 	A a;
 	V v;
@@ -35,9 +37,9 @@ public:
 	Card(int idx, int type) {
 		this->type = type;
 		if(type==0)
-			this->idx = idx-4;
+			this->idx = idx-3;
 		else if(type==1)
-			this->idx = idx - 24;
+			this->idx = idx - 23;
 		vector<shape_t> shapes;
 		vector<material_t> materials;
 
@@ -78,7 +80,6 @@ public:
 			s[i].indexCount = static_cast<int>(shapes[i].mesh.indices.size());
 		}
 		string s = string("card/" + to_string(idx) + ".png");
-		cout << s << endl;
 		TextureData tdata = load_png(s.c_str(), false);
 
 		glGenTextures(1, &face);
@@ -92,7 +93,7 @@ public:
 		if(type==0)
 			tdata = load_png("card/1.png", true);
 		else
-			tdata = load_png("card/3.png", true);
+			tdata = load_png("card/2.png", true);
 
 		glGenTextures(1, &back);
 		glBindTexture(GL_TEXTURE_2D, back);
@@ -107,10 +108,10 @@ public:
 	}
 	void init() {
 		if (type == 0) {
-			p.pos = vec3(1.83, 0.1 + 0.01*idx, 1.87);
+			p.pos = vec3(1.83, 0.1, 1.87);
 		}
 		else {
-			p.pos = vec3(-1.4, 0.1 + 0.01*idx, -1.66);
+			p.pos = vec3(-1.4, 0.1, -1.66);
 		}
 		p.degree.x = 0.0f;
 		p.degree.y = -45.0f;
@@ -118,6 +119,7 @@ public:
 		slide = false;
 		gocent = false;
 		discard = false;
+		isdiscarded = false;
 		wait = false;
 		waitdiscard = false;
 	}
@@ -129,7 +131,7 @@ public:
 		if (timer > timeout && wait) {
 			slide = true;
 			wait = false;
-			vec3 to = type == 0 ? vec3(1.83 + 1, 0.1 + 0.01*idx, 1.87 - 1) : vec3(-1.4 - 1, 0.1 + 0.01*idx, -1.66 + 1);
+			vec3 to = type == 0 ? vec3(1.83 + 1, 0.1 + 0.01*h, 1.87 - 1) : vec3(-1.4 - 1, 0.1 + 0.01*h, -1.66 + 1);
 			cnt = 0;
 			a.pos = (to - p.pos) / vec3(1250);
 			v.pos = vec3(50)*a.pos;
@@ -209,6 +211,7 @@ public:
 			else {
 				status = true;
 				discard = false;
+				isdiscarded = true;
 				cnt = 0;
 			}
 		}
@@ -226,7 +229,6 @@ public:
 			glBindVertexArray(s[i].vao);
 			glBindTexture(GL_TEXTURE_2D, face);
 			glCullFace(GL_FRONT);
-			getModelMatrix();
             glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view * model));
 			glDrawElements(GL_TRIANGLES, s[i].indexCount, GL_UNSIGNED_INT, 0);
 			glBindTexture(GL_TEXTURE_2D, back);
@@ -256,6 +258,16 @@ public:
 	mat4 getModelMatrix() {
 		return model;
 	}
+	bool isDiscard() {
+		return isdiscarded;
+	}
+	void setH(GLint h) {
+		this->h = h;
+		p.pos.y = 0.1 + 0.01*h;
+	}
+	GLint getH() {
+		return h;
+	}
 };
 
 class CardGroup {
@@ -266,19 +278,29 @@ public:
 	CardGroup(int size) {
 		this->size = size;
 		for (int i = 0; i < size; i++) {
-			chance.push_back(Card(i+4, 0));
-			fate.push_back(Card(i+24, 1));
+			Card c = Card(i + 3, 0);
+			c.setH(i);
+			chance.push_back(c);
+			c = Card(i + 23, 1);
+			c.setH(i);
+			fate.push_back(c);
 		}
+		c_remain = 20;
+		f_remain = 20;
 	}
 	~CardGroup() {
 
 	}
 	void draw(GLuint program) {
 		for (int i = 0; i < size; i++) {
-			fate[i].setView(view);
-			fate[i].draw(program);
-			chance[i].setView(view);
-			chance[i].draw(program);
+			if (!fate[i].isDiscard()) {
+				fate[i].setView(view);
+				fate[i].draw(program);
+			}
+			if (!chance[i].isDiscard()) {
+				chance[i].setView(view);
+				chance[i].draw(program);
+			}
 		}
 	}
 	void setView(mat4 view) {
@@ -298,18 +320,35 @@ public:
 		int id = idx % size;
 		if (type == 0) { // opp
 			cout << "go get opportunity card " << id << endl;
+			for (Card &c : chance) {
+				if (c.getH() == c_remain) {
+					c.setH(id);
+					chance[id].setH(c_remain);
+				}
+			}
 			chance[id].getCard();
+			c_remain--;
 		}
 		else if (type == 1) {// fate
 			cout << "go get fate card " << id << endl;
+			for (Card &f : fate) {
+				if (f.getH() == f_remain-1) {
+					f.setH(id);
+					fate[id].setH(f_remain-1);
+				}
+			}
 			fate[id].getCard();
+			f_remain--;
 		}
 
 	}
 private:
-	int size;
+	GLint size;
+	GLint c_remain;
+	GLint f_remain;
 	vector<Card> chance;
 	vector<Card> fate;
 	mat4 view;
+
 };
 
