@@ -88,6 +88,7 @@
   <ItemGroup>
     <ClInclude Include="..\Source\camera.h" />
     <ClInclude Include="..\Source\card\card.h" />
+    <ClInclude Include="..\Source\chess\chess.h" />
     <ClInclude Include="..\Source\dice\dice.h" />
     <ClInclude Include="..\Source\logic\game.h" />
     <ClInclude Include="..\Source\logic\grid.h" />
@@ -101,6 +102,8 @@
   <ItemGroup>
     <None Include="..\Assets\card\card.fragment" />
     <None Include="..\Assets\card\card.vertex" />
+    <None Include="..\Assets\chess\chess.fragment" />
+    <None Include="..\Assets\chess\chess.vertex" />
     <None Include="..\Assets\depth.fragment" />
     <None Include="..\Assets\depth.vertex" />
     <None Include="..\Assets\dice\dice.fragment" />

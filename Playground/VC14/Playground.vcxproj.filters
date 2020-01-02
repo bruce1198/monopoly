@@ -19,6 +19,7 @@
     <ClInclude Include="..\Source\window\texture.h" />
     <ClInclude Include="..\Source\card\card.h" />
     <ClInclude Include="..\Source\camera.h" />
+    <ClInclude Include="..\Source\chess\chess.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\window\window.fragment" />
@@ -33,5 +34,7 @@
     <None Include="..\Assets\dice\dice.vertex" />
     <None Include="..\Assets\card\card.fragment" />
     <None Include="..\Assets\card\card.vertex" />
+    <None Include="..\Assets\chess\chess.fragment" />
+    <None Include="..\Assets\chess\chess.vertex" />
   </ItemGroup>
 </Project>

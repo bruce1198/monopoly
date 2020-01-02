@@ -80,7 +80,6 @@ public:
 			p = 2;
 		else if (degree == vec3(90, 180, 0) || degree == vec3(90, 0, 180))
 			p = 1;
-		return 1;
 		return p;
 	}
 	int update() {
@@ -387,6 +386,9 @@ public:
 	}
 	mat4 getModel() {
 		return group[0].getModelMatrix();
+	}
+	vector<Dice> getGroup() {
+		return group;
 	}
 private:
 	int size;

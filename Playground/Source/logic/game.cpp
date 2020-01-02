@@ -82,6 +82,7 @@ void Game::ReturnAsset(int player_num) {
 void Game::Run() {
     while(!is_gameover) {
         for(int player_iter = 0; player_iter < num_of_player; player_iter++) {
+			doneidx = player_iter;
             if(!player[player_iter].GetBankRupt()) {
                 cout << "\n\n\n";
                 cout << "Turn for player" << player_iter << "\n";
@@ -99,9 +100,7 @@ void Game::Run() {
                 while(player[player_iter].GetOneMore()) {
 					getPoints = false;
 					canThrow = false;
-					movedone = false;
 					getanswer = false;
-					response = false;
 					getcard = false;
 					getcarddone = false;
 					from = player[player_iter].GetPosition();
@@ -113,6 +112,8 @@ void Game::Run() {
 					while (!getPoints) {
 						cout << "";
 					}
+					movedone = false;
+					response = false;
 					int num_of_move = player[player_iter].ThrowDice(point[0], point[1]);
 					//cout << point << endl;
                     if(player[player_iter].GetInJail()) {
