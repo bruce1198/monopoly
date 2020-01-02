@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Source\main.cpp" />
+    <ClCompile Include="..\Source\logic\game.cpp" />
+    <ClCompile Include="..\Source\logic\grid.cpp" />
+    <ClCompile Include="..\Source\logic\logicmap.cpp" />
+    <ClCompile Include="..\Source\logic\player.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\util.h" />
+    <ClInclude Include="..\Source\dice\dice.h" />
+    <ClInclude Include="..\Source\logic\game.h" />
+    <ClInclude Include="..\Source\logic\grid.h" />
+    <ClInclude Include="..\Source\logic\logicmap.h" />
+    <ClInclude Include="..\Source\logic\player.h" />
+    <ClInclude Include="..\Source\map\map.h" />
+    <ClInclude Include="..\Source\window\PopUpWindow.h" />
+    <ClInclude Include="..\Source\window\texture.h" />
+    <ClInclude Include="..\Source\card\card.h" />
+    <ClInclude Include="..\Source\camera.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Assets\window\window.fragment" />
+    <None Include="..\Assets\window\window.vertex" />
+    <None Include="..\Assets\shadow.fragment" />
+    <None Include="..\Assets\shadow.vertex" />
+    <None Include="..\Assets\map\map.fragment" />
+    <None Include="..\Assets\map\map.vertex" />
+    <None Include="..\Assets\depth.fragment" />
+    <None Include="..\Assets\depth.vertex" />
+    <None Include="..\Assets\dice\dice.fragment" />
+    <None Include="..\Assets\dice\dice.vertex" />
+    <None Include="..\Assets\card\card.fragment" />
+    <None Include="..\Assets\card\card.vertex" />
+  </ItemGroup>
+</Project>

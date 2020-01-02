@@ -65,7 +65,7 @@ int Player::ThrowDice() {
     return dice_one + dice_two;
 }
 
-int Player::ThrowDiceForToll() {
+int Player::PureThrowDice() {
     srand(time(NULL));
     int max = 6;
     int min = 1;
@@ -89,7 +89,14 @@ void Player::Move(int num_of_move) {
     }
     
 }
-
+void Player::Rest() {
+    is_rest = true;
+    one_more = false;
+}
+void Player::LeaveRest() {
+    is_rest = false;
+    rest_day = 0;
+}
 void Player::GoJail() {
     in_jail = true;
     position = 10;

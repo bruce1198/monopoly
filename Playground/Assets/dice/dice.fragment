@@ -1,0 +1,41 @@
+#version 410
+
+layout(location = 0) out vec4 fragColor;
+
+uniform mat4 um4mv;
+uniform mat4 um4p;
+
+in VertexData
+{
+    vec3 N;
+    vec3 L;
+    vec3 H;
+    vec3 texcoord;
+} vertexData;
+
+uniform samplerCube tex;
+uniform int flag;
+void main()
+{
+	vec4 color = texture(tex,vertexData.texcoord);
+	if(flag==0) {
+		if(color.a!=1)
+			fragColor = vec4(1, 0, 0, 1);
+		else if(dot(color.rgb, vec3(1, 1, 1)) < 0.5)
+			fragColor = vec4(1, 0, 0, 1.0);
+		else if(dot(color.rgb, vec3(1, 1, 1)) >= 2.5)
+			fragColor = vec4(1, 1, 1, 1.0);
+		else
+			fragColor = color;
+	}
+	else {
+		if(color.a!=1)
+			fragColor = vec4(0, 0, 1, 1);
+		else if(dot(color.rgb, vec3(1, 1, 1)) < 0.5)
+			fragColor = vec4(0, 0, 1, 1.0);
+		else if(dot(color.rgb, vec3(1, 1, 1)) >= 2.5)
+			fragColor = vec4(1, 1, 1, 1.0);
+		else
+			fragColor = color;
+	}
+}
