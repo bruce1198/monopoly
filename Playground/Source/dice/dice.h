@@ -14,7 +14,7 @@ public:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 		glGenTextures(1, &texture);
-		glActiveTexture(GL_TEXTURE0);
+		//glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 
 		int width, height, nrChannels;
@@ -80,6 +80,7 @@ public:
 			p = 2;
 		else if (degree == vec3(90, 180, 0) || degree == vec3(90, 0, 180))
 			p = 1;
+		return 1;
 		return p;
 	}
 	int update() {
@@ -135,7 +136,6 @@ public:
 	mat4 getModelMatrix() {
 		mat4 matrix;
 		matrix = translate(matrix, pos);
-		matrix = scale(matrix, scl);
 
 		//modification
 		mat4 x_bias = rotate(mat4(), -radians(degree.x), vec3(1.0, 0.0, 0.0));
@@ -150,11 +150,13 @@ public:
 		matrix = rotate(matrix, radians(degree.y), vec_y);
 		matrix = rotate(matrix, radians(degree.z), vec_z);
 
+		matrix = scale(matrix, scl);
+
 		return matrix;
 	}
 	void draw() {
 		glBindVertexArray(vao);
-		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 	}
@@ -244,7 +246,6 @@ public:
 		goup = false;
 		rolling = false;
 		godown = false;
-		timer = 0;
 		points = 0;
 		pos = vec3(0, 0.35, 0.0);
 		for (int i = 0; i < size; i++) {
@@ -292,6 +293,7 @@ public:
 		}
 		else
 			timer++;
+		group.at(0).getStatus(status);
 		if (!status[0] && goup) { //goup and move done
 			for (int i = 0; i < size; i++) {
 				group.at(i).roll();
@@ -382,6 +384,9 @@ public:
 	}
 	int getPlayer() {
 		return player;
+	}
+	mat4 getModel() {
+		return group[0].getModelMatrix();
 	}
 private:
 	int size;

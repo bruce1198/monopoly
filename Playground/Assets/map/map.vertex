@@ -6,12 +6,13 @@ layout(location = 2) in vec3 normal;
 
 uniform mat4 um4mv;
 uniform mat4 um4p;
+uniform mat4 shadow_matrix;
 
 out VertexData
 {
-    vec3 N; // eye space normal
-    vec3 L; // eye space light vector
-    vec3 H; // eye space halfway vector
+    vec3 N;
+    vec3 L;
+    vec3 H;
     vec2 texcoord;
 } vertexData;
 
