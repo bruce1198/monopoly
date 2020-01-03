@@ -2,8 +2,10 @@
 #include "dice/dice.h"
 #include "card/card.h"
 #include "map/map.h"
+#include "house/house.h"
 #include "logic/game.h"
 #include "window/PopUpWindow.h"
+#include "panel/propertyPanel.h"
 #include <thread>
 //For GLUT to handle 
 #define MENU_TIMER_START 1
@@ -25,13 +27,16 @@ vector<Chess> chess;
 DiceGroup dg;
 CardGroup cg;
 Map mymap;
+Community community;
 Camera camera;
 PopUpWindow window;
+PropertyPanel panel;
 //shader
 Shader chess_shader;
 Shader dice_shader;
 Shader card_shader;
 Shader map_shader;
+Shader house_shader;
 Shader window_shader;
 Shader depth_shader;
 Shader shadow_shader;
@@ -44,6 +49,7 @@ void My_Init()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST); 
 	glEnable(GL_BLEND); 
+	glEnable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LEQUAL);
 
@@ -52,6 +58,7 @@ void My_Init()
 	dice_shader = Shader("dice/dice.vertex", "dice/dice.fragment");
 	card_shader = Shader("card/card.vertex", "card/card.fragment");
 	map_shader = Shader("map/map.vertex", "map/map.fragment");
+	house_shader = Shader("house/house.vertex", "house/house.fragment");
 	window_shader = Shader("window/window.vertex", "window/window.fragment");
 	depth_shader = Shader("depth.vertex", "depth.fragment");
 	shadow_shader = Shader("shadow.vertex", "shadow.fragment");
@@ -64,6 +71,7 @@ void My_Init()
 	mymap = Map("map/map.png");
 	camera = Camera(vec3(0, 15, 0), vec3(0, 1, 0), 0, -30);
 	window = PopUpWindow(window_shader.getProgram());
+	panel = PropertyPanel(window_shader.getProgram());
 	camera.goTopView();
 
 	glGenFramebuffers(1, &shadow_buffer.fbo);
@@ -72,6 +80,8 @@ void My_Init()
 	glGenTextures(1, &shadow_buffer.texture);
 	glBindTexture(GL_TEXTURE_2D, shadow_buffer.texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
@@ -80,8 +90,7 @@ void My_Init()
 
 }
 
-void My_Display()
-{
+void My_Display() {
 	const float shadow_range = 30.0f;
 	mat4 light_proj_matrix = ortho(-shadow_range, shadow_range, -shadow_range, shadow_range, 0.0f, 100.0f);
 	mat4 light_view_matrix = lookAt(vec3(-4, 20, 10), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -104,9 +113,13 @@ void My_Display()
 		//c.draw(depth_shader.getProgram(), true);
 	}
 	//draw card
-	glUniformMatrix4fv(glGetUniformLocation(card_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
+	glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
 	cg.setView(light_view_matrix);
-	cg.draw(card_shader.getProgram());
+	cg.draw(depth_shader.getProgram());
+	//draw house
+	glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
+	community.setView(light_view_matrix);
+	community.draw(depth_shader.getProgram());
 	//draw dice
 	glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
 	dg.setView(light_view_matrix);
@@ -145,6 +158,11 @@ void My_Display()
 	glUniformMatrix4fv(glGetUniformLocation(map_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
 	mymap.setView(view);
 	mymap.draw(map_shader.getProgram(), true);
+	//draw house
+	house_shader.use();
+	glUniformMatrix4fv(glGetUniformLocation(house_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
+	community.setView(view);
+	community.draw(house_shader.getProgram());
 	//draw shadow
 	shadow_shader.use();
 	mat4 shadow_matrix = shadow_sbpv_matrix * mymap.getModel();
@@ -164,7 +182,9 @@ void My_Display()
 		d.draw(); 
 	}
 	//draw window
-	window.draw(window_shader.getProgram(), mousePos, currentWH);
+	window.drawPurchase(window_shader.getProgram(), mousePos, currentWH);
+	//draw panel
+	panel.draw(window_shader.getProgram(), game.money[0], game.money[1]);
 	//--
     glutSwapBuffers();
 }
@@ -176,6 +196,8 @@ void My_Reshape(int width, int height) {
 	glBindFramebuffer(GL_FRAMEBUFFER, shadow_buffer.fbo);
 	glBindTexture(GL_TEXTURE_2D, shadow_buffer.texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
@@ -203,6 +225,7 @@ void My_Timer(int val) {
 	else if (game.goTop) {
 		game.goTop = false;
 		camera.goTopView();
+		dg.setColor(game.doneidx);
 	}
 	else if (game.goSide) {
 		game.goSide = false;
@@ -210,8 +233,22 @@ void My_Timer(int val) {
 	}
 	else if (game.popout) {
 		game.popout = false;
+		window.idx = index;
+		if (index == 4)
+			window.setType(1);
+		else
+			window.setType(0);
 		window.wantOpen = true;
 		window.windowScale = 0.0f;
+	}
+	else if (game.keetsu) {
+		game.keetsu = false;
+		House h(game.tsuidx, game.tsuheight, game.tsuowner);
+		community.add(h);
+	}
+	else if (game.smove) {
+		game.smove = false;
+		chess[game.smoveidx].setPos(game.smovepos);
 	}
 	else if (game.getcard) {
 		cg.getCard(game.cardtype, game.cardidx);
@@ -270,16 +307,16 @@ void My_SpecialKeys(int key, int x, int y)
 	case GLUT_KEY_PAGE_UP:
 		break;
 	case GLUT_KEY_LEFT:
-		//chess[0].setPos(chess[0].getPos()-1);
+		//house.setPos(house.getPos()-1);
 		break;
 	case GLUT_KEY_RIGHT:
-		//chess[0].setPos(chess[0].getPos() + 1);
+		//house.setPos(house.getPos() + 1);
 		break;
 	case GLUT_KEY_UP:
-		//chess[1].setPos(chess[1].getPos() + 1);
+		//house.setPos(house.getPos() + 1);
 		break;
 	case GLUT_KEY_DOWN:
-		//chess[1].setPos(chess[1].getPos() - 1);
+		//house.setPos(house.getPos() - 1);
 		break;
 	default:
 		break;
@@ -371,7 +408,7 @@ int main(int argc, char *argv[])
 	// Initialize GLUT and GLEW, then create a window.
 	glutInit(&argc, argv);
 #ifdef _MSC_VER
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
 #else
     glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 #endif

@@ -321,9 +321,9 @@ public:
 		if (type == 0) { // opp
 			cout << "go get opportunity card " << id << endl;
 			for (Card &c : chance) {
-				if (c.getH() == c_remain) {
+				if (c.getH() == c_remain - 1) {
 					c.setH(id);
-					chance[id].setH(c_remain);
+					chance[id].setH(c_remain - 1);
 				}
 			}
 			chance[id].getCard();

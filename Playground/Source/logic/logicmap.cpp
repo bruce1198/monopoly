@@ -58,9 +58,9 @@ LogicMap::LogicMap(){
     grid[8].SetValue(1000);
     grid[9].SetValue(1200);
     grid[10].SetValue(0);
-    grid[11].SetValue(1400);
+    grid[11].SetValue(1500);
     grid[12].SetValue(1500);
-    grid[13].SetValue(1500);
+    grid[13].SetValue(1400);
     grid[14].SetValue(1600);
     grid[15].SetValue(2000);
     grid[16].SetValue(1800);

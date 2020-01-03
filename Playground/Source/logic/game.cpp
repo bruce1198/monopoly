@@ -34,7 +34,11 @@ Game::Game(int num_of_player) {
 	movedone = false;
 	getanswer = false;
 	popout = false;
+	keetsu = false;
 	getcard = false;
+	smove = false;
+	money[0] = 15000;
+	money[1] = 15000;
     // player.resize(num_of_player);
 }
 void Game::ShuffleFate() {
@@ -82,6 +86,7 @@ void Game::ReturnAsset(int player_num) {
 void Game::Run() {
     while(!is_gameover) {
         for(int player_iter = 0; player_iter < num_of_player; player_iter++) {
+			money[player_iter] = player[player_iter].GetMoney();
 			doneidx = player_iter;
             if(!player[player_iter].GetBankRupt()) {
                 cout << "\n\n\n";
@@ -149,6 +154,7 @@ void Game::Run() {
                             break;
                         }
                     }
+					money[player_iter] = player[player_iter].GetMoney();
 					goTop = true;
                     //system("pause");
                 }
@@ -156,6 +162,7 @@ void Game::Run() {
                     break;
                 }
             }
+			money[player_iter] = player[player_iter].GetMoney();
         }
     }
     GameOver();
@@ -196,6 +203,10 @@ void Game::Event(int position, int player_num) {
                     player[player_num].SetMoney(player[player_num].GetMoney() - map.grid[position].GetValue());
                     map.grid[position].SetOwner(player_num);
                     map.grid[position].SetEmpty(false);
+					tsuidx = position;
+					tsuheight = 0;
+					tsuowner = player_num;
+					keetsu = true;
                     // update player land list
                     switch (map.grid[position].GetLabel())
                     {
@@ -279,6 +290,10 @@ void Game::Event(int position, int player_num) {
                     if(option == "yes") {
                         map.grid[position].SetNumOfHouse(map.grid[position].GetNumOfHouse() + 1);
                         player[player_num].SetMoney(player[player_num].GetMoney() - cost_build);
+						tsuidx = position;
+						tsuheight = map.grid[position].GetNumOfHouse();
+						tsuowner = player_num;
+						keetsu = true;
                     }
                     else if(option == "no") {
 
@@ -313,6 +328,10 @@ void Game::Event(int position, int player_num) {
 				}
 				cout << option << endl;
                 if(option == "yes") {
+					tsuidx = position;
+					tsuheight = 0;
+					tsuowner = player_num;
+					keetsu = true;
                     player[player_num].SetMoney(player[player_num].GetMoney() - map.grid[position].GetValue());
                     map.grid[position].SetOwner(player_num);
                     map.grid[position].SetEmpty(false);
@@ -370,6 +389,10 @@ void Game::Event(int position, int player_num) {
 				}
 				cout << option << endl;
                 if(option == "yes") {
+					tsuidx = position;
+					tsuheight = 0;
+					tsuowner = player_num;
+					keetsu = true;
                     player[player_num].SetMoney(player[player_num].GetMoney() - map.grid[position].GetValue());
                     map.grid[position].SetOwner(player_num);
                     map.grid[position].SetEmpty(false);
@@ -434,17 +457,29 @@ void Game::Event(int position, int player_num) {
 			break;
 		case 3:
 			if (position < 6) {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = 6;
 				player[player_num].Move(6 - position);
 			}
 			else {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = 6;
 				player[player_num].Move(6 + 40 - position);
 			}
 			break;
 		case 4:
 			if (position - 3 < 0) {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = position + 40 - 3;
 				player[player_num].SetPosition(position + 40 - 3);
 			}
 			else {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = position - 3;
 				player[player_num].SetPosition(position - 3);
 			}
 			break;
@@ -486,9 +521,15 @@ void Game::Event(int position, int player_num) {
 			break;
 		case 17:
 			if (position < 15) {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = 15;
 				player[player_num].Move(15 - position);
 			}
 			else {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = 15;
 				player[player_num].Move(15 + 40 - position);
 			}
 			break;
@@ -531,18 +572,27 @@ void Game::Event(int position, int player_num) {
 			player[player_num].SetMoney(player[player_num].GetMoney() + 1000);
 			break;
 		case 4:
+			smove = true;
+			smoveidx = player_num;
+			smovepos = player[player_num].GetPosition() + 2;
 			player[player_num].Move(2);
 			break;
 		case 5:
 			player[player_num].SetMoney(player[player_num].GetMoney() + 500);
 			break;
 		case 6:
+			smove = true;
+			smoveidx = player_num;
+			smovepos = player[player_num].GetPosition() + 3;
 			player[player_num].Move(3);
 			break;
 		case 7:
 			player[player_num].SetMoney(player[player_num].GetMoney() + 300);
 			break;
 		case 8:
+			smove = true;
+			smoveidx = player_num;
+			smovepos = 0;
 			player[player_num].SetPosition(0);
 			break;
 		case 9:
@@ -553,9 +603,15 @@ void Game::Event(int position, int player_num) {
 			break;
 		case 11:
 			if (position < 5) {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = 5;
 				player[player_num].Move(5 - position);
 			}
 			else {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = 5;
 				player[player_num].Move(5 + 40 - position);
 			}
 			break;
@@ -576,9 +632,15 @@ void Game::Event(int position, int player_num) {
 			break;
 		case 17:
 			if (position - 1 < 0) {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = position + 40 - 1;
 				player[player_num].SetPosition(position + 40 - 1);
 			}
 			else {
+				smove = true;
+				smoveidx = player_num;
+				smovepos = position - 1;
 				player[player_num].SetPosition(position - 1);
 			}
 			break;
@@ -598,6 +660,9 @@ void Game::Event(int position, int player_num) {
 		}
 		break;
     case jail:
+		smove = true;
+		smoveidx = player_num;
+		smovepos = 10;
         player[player_num].GoJail();
         break;
     case pay:
@@ -612,8 +677,13 @@ void Game::Event(int position, int player_num) {
 			while (!getanswer) {
 				cout << "";
 			}
-			option = answer;
-			cout << answer << endl;
+			if (answer == 1) {
+				option = "1";
+			}
+			else if (answer == 2) {
+				option = "2";
+			}
+			cout << option << endl;
             if(option == "1") {
                 player[player_num].SetMoney(player[player_num].GetMoney() - 2000);
             }

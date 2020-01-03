@@ -260,11 +260,12 @@ public:
 		timeout1 = 30;
 		wait = false;
 		pleasegetpoint = false;
+		color = 0;
 	}
 	void draw(GLuint program) {
 		for (int i = 0; i < size; i++) {
 			mat4 model = group.at(i).getModelMatrix();
-			glUniform1i(glGetUniformLocation(program, "flag"), i);
+			glUniform1i(glGetUniformLocation(program, "flag"), color);
 			glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view*model));
 			group.at(i).draw();
 		}
@@ -390,7 +391,11 @@ public:
 	vector<Dice> getGroup() {
 		return group;
 	}
+	void setColor(int color) {
+		this->color = color;
+	}
 private:
+	int color;
 	int size;
 	vector<Dice> group;
 	GLuint um4mv;

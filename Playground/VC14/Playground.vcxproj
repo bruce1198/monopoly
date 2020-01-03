@@ -90,11 +90,13 @@
     <ClInclude Include="..\Source\card\card.h" />
     <ClInclude Include="..\Source\chess\chess.h" />
     <ClInclude Include="..\Source\dice\dice.h" />
+    <ClInclude Include="..\Source\house\house.h" />
     <ClInclude Include="..\Source\logic\game.h" />
     <ClInclude Include="..\Source\logic\grid.h" />
     <ClInclude Include="..\Source\logic\logicmap.h" />
     <ClInclude Include="..\Source\logic\player.h" />
     <ClInclude Include="..\Source\map\map.h" />
+    <ClInclude Include="..\Source\panel\propertyPanel.h" />
     <ClInclude Include="..\Source\util.h" />
     <ClInclude Include="..\Source\window\PopUpWindow.h" />
     <ClInclude Include="..\Source\window\texture.h" />
@@ -108,10 +110,14 @@
     <None Include="..\Assets\depth.vertex" />
     <None Include="..\Assets\dice\dice.fragment" />
     <None Include="..\Assets\dice\dice.vertex" />
+    <None Include="..\Assets\house\house.fragment" />
+    <None Include="..\Assets\house\house.vertex" />
     <None Include="..\Assets\map\map.fragment" />
     <None Include="..\Assets\map\map.vertex" />
     <None Include="..\Assets\shadow.fragment" />
     <None Include="..\Assets\shadow.vertex" />
+    <None Include="..\Assets\skybox\skybox.fragment" />
+    <None Include="..\Assets\skybox\skybox.vertex" />
     <None Include="..\Assets\window\window.fragment" />
     <None Include="..\Assets\window\window.vertex" />
   </ItemGroup>

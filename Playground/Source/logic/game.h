@@ -34,6 +34,15 @@ public:
 	int cardtype;
 	int cardidx;
 	int doneidx;
+	int throwidx;
+	int money[2];
+	bool keetsu;
+	int tsuidx;
+	int tsuheight;
+	int tsuowner;
+	bool smove;
+	int smoveidx;
+	int smovepos;
 	//go in
 	bool canThrow;
 	bool getPoints;
