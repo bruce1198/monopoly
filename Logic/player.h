@@ -35,6 +35,18 @@ public:
     void SetInJail(bool in_jail) {
         this -> in_jail = in_jail;
     }
+    void SetIsRest(bool is_rest) {
+        this -> is_rest = is_rest;
+    }
+    bool GetIsRest() {
+        return is_rest;
+    }
+    int GetRestDay() {
+        return rest_day;
+    }
+    bool SetRestDay(int rest_day) {
+        this -> rest_day = rest_day;
+    }
     bool GetBankRupt() {
         return is_bankrupt;
     }
@@ -47,7 +59,9 @@ public:
     void Init();
     int ThrowDice();
     void Move(int);
-    int ThrowDiceForToll();
+    void Rest();
+    void LeaveRest();
+    int PureThrowDice();
     vector<int> grid_red;
     vector<int> grid_orange;
     vector<int> grid_yellow;
@@ -66,5 +80,7 @@ private:
     bool in_jail = false;
     int jail_day = 0;
     bool is_bankrupt = false;
+    bool is_rest = false;
+    int rest_day = 0;
 };
 #endif

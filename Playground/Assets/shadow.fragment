@@ -1,0 +1,16 @@
+#version 410 core
+
+layout(location = 0) out vec4 fragColor;
+
+in vec4 shadow_coord;
+
+uniform sampler2DShadow shadow_tex;
+
+void main()
+{
+	float shadow_factor = textureProj(shadow_tex, shadow_coord);
+	vec4 color = vec4(0.2, 0.2, 0.2, 0.7);
+	if(shadow_factor<=0.5) {
+		fragColor = color;
+	}
+}
