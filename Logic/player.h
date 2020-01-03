@@ -23,6 +23,9 @@ public:
     bool GetOneMore() {
         return one_more;
     }
+    void SetOneMore(bool one_more) {
+        this -> one_more = one_more;
+    }
     bool GetInJail() {
         return in_jail;
     }

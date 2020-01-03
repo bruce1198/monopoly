@@ -93,8 +93,12 @@ void Game::Run() {
                     }
                 }
                 while(player[player_iter].GetOneMore()) {
-                    int num_of_move = player[player_iter].ThrowDice();
-                    if(player[player_iter].GetInJail()) {
+                    if(!player[player_iter].GetIsRest()) {
+                        // rest can't throw dice
+                        int num_of_move = player[player_iter].ThrowDice();
+                        player[player_iter].SetOneMore(false);
+                    }
+                    if(player[player_iter].GetInJail() || player[player_iter].GetIsRest()) {
                         // do nothing
                         cout << "Player" << player_iter << " Position : " << player[player_iter].GetPosition() << "\n";
                     }
