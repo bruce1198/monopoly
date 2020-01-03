@@ -20,6 +20,8 @@
     <ClInclude Include="..\Source\card\card.h" />
     <ClInclude Include="..\Source\camera.h" />
     <ClInclude Include="..\Source\chess\chess.h" />
+    <ClInclude Include="..\Source\panel\propertyPanel.h" />
+    <ClInclude Include="..\Source\house\house.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\window\window.fragment" />
@@ -36,5 +38,9 @@
     <None Include="..\Assets\card\card.vertex" />
     <None Include="..\Assets\chess\chess.fragment" />
     <None Include="..\Assets\chess\chess.vertex" />
+    <None Include="..\Assets\skybox\skybox.fragment" />
+    <None Include="..\Assets\skybox\skybox.vertex" />
+    <None Include="..\Assets\house\house.fragment" />
+    <None Include="..\Assets\house\house.vertex" />
   </ItemGroup>
 </Project>

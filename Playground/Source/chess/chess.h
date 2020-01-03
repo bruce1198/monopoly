@@ -49,7 +49,6 @@ public:
 		switch (position) {
 		case 0:
 			trans = vec3(4+index*0.6, 0, -4);
-			print(trans);
 			break;
 		case 1:case 2:case 3:case 4:case 5:case 6:case 7:case 8:case 9:
 			trans = vec3(4 + index * 0.6, 0, -3.8 + position * 8.0f / 10.5);

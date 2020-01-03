@@ -166,42 +166,42 @@ public:
 			//get view
 			switch (idx) {
 			case 0:
-				player_view = vec3(4, 1, -4);
+				player_view = vec3(4.3, 1, -4);
 				player_pitch = -32.75f;
 				player_yaw = 89.75f;
 				break;
 			case 1:case 2:case 3:case 4:case 5:case 6:case 7:case 8:case 9:
-				player_view = vec3(4, 1.0, -4 + idx * 8.0f / 11);
+				player_view = vec3(4.3, 1.0, -4 + idx * 8.0f / 11);
 				player_pitch = -32.75f;
 				player_yaw = 89.75f;
 				break;
 			case 10:
-				player_view = vec3(4, 1, 4);
+				player_view = vec3(4, 1, 4.3);
 				player_pitch = -32.75f;
 				player_yaw = 180.0f;
 				break;
 			case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:
-				player_view = vec3(4 - (idx - 10) * 8.0f / 11, 1, 4);
+				player_view = vec3(4 - (idx - 10) * 8.0f / 11, 1, 4.3);
 				player_pitch = -32.75f;
 				player_yaw = 180.0f;
 				break;
 			case 20:
-				player_view = vec3(-4, 1, 4);
+				player_view = vec3(-4.3, 1, 4);
 				player_pitch = -32.75f;
 				player_yaw = 269.75f;
 				break;
 			case 21:case 22:case 23:case 24:case 25:case 26:case 27:case 28:case 29:
-				player_view = vec3(-4, 1, 4 - (idx - 20) * 8.0f / 11);
+				player_view = vec3(-4.3, 1, 4 - (idx - 20) * 8.0f / 11);
 				player_pitch = -32.75f;
 				player_yaw = 269.75f;
 				break;
 			case 30:
-				player_view = vec3(-4, 0, -4);
+				player_view = vec3(-4, 1, -4.3);
 				player_pitch = -32.75f;
 				player_yaw = 360.0f;
 				break;
 			case 31:case 32:case 33:case 34:case 35:case 36:case 37:case 38:case 39:
-				player_view = vec3(-4 + (idx - 30) * 8.0f / 11, 1, -4);
+				player_view = vec3(-4 + (idx - 30) * 8.0f / 11, 1, -4.3);
 				player_pitch = -32.75f;
 				player_yaw = 360.0f;
 				break;
@@ -210,12 +210,12 @@ public:
 			}
 			goplayerview = true;
 			goplayerviewcnt = 0;
-			a.pos = (player_view - Position) / vec3(1250.0);
-			v.pos = vec3(50.0)*a.pos;
-			a.yaw = (player_yaw - Yaw) / 1250;
-			v.yaw = 50.0f * a.yaw;
-			a.pitch = (player_pitch - Pitch) / 1250;
-			v.pitch = 50.0f * a.pitch;
+			a.pos = (player_view - Position) / vec3(640.0);
+			v.pos = vec3(40.0)*a.pos;
+			a.yaw = (player_yaw - Yaw) / 640;
+			v.yaw = 40.0f * a.yaw;
+			a.pitch = (player_pitch - Pitch) / 640;
+			v.pitch = 40.0f * a.pitch;
 		}
 	}
 	void movePlayerView(int from, int step) {
@@ -300,7 +300,7 @@ public:
 			}
 		}
 		else if (goplayerview) {
-			if (goplayerviewcnt < 50) {
+			if (goplayerviewcnt < 40) {
 				Position += v.pos;
 				v.pos -= a.pos;
 				Yaw += v.yaw;

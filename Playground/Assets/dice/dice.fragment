@@ -2,27 +2,29 @@
 
 layout(location = 0) out vec4 fragColor;
 
-uniform mat4 um4mv;
-uniform mat4 um4p;
+uniform vec3 specular_albedo = vec3(0.7);
+uniform float specular_power = 200.0;
 
-in VertexData
+in VS_OUT
 {
-    vec3 N;
-    vec3 L;
-    vec3 H;
-    vec3 texcoord;
-} vertexData;
+	vec3 N;
+	vec3 L;
+	vec3 V;
+	vec3 texcoord;
+} fs_in;
 
 uniform samplerCube tex;
 uniform int flag;
+
 void main()
 {
-	vec4 color = texture(tex,vertexData.texcoord);
+	vec4 color = texture(tex,fs_in.texcoord);
 	if(flag==0) {
+
 		if(color.a!=1)
-			fragColor = vec4(1, 0, 0, 1);
+			fragColor = vec4(0.35f, 0.1f, 1.0f, 1);
 		else if(dot(color.rgb, vec3(1, 1, 1)) < 0.5)
-			fragColor = vec4(1, 0, 0, 1.0);
+			fragColor = vec4(0.35f, 0.1f, 1.0f, 1.0);
 		else if(dot(color.rgb, vec3(1, 1, 1)) >= 2.5)
 			fragColor = vec4(1, 1, 1, 1.0);
 		else
@@ -30,9 +32,9 @@ void main()
 	}
 	else {
 		if(color.a!=1)
-			fragColor = vec4(0, 0, 1, 1);
+			fragColor = vec4(1.0f, 0.1f, 0.35f, 1);
 		else if(dot(color.rgb, vec3(1, 1, 1)) < 0.5)
-			fragColor = vec4(0, 0, 1, 1.0);
+			fragColor = vec4(1.0f, 0.1f, 0.35f, 1.0);
 		else if(dot(color.rgb, vec3(1, 1, 1)) >= 2.5)
 			fragColor = vec4(1, 1, 1, 1.0);
 		else
