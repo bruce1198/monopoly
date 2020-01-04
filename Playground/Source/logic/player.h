@@ -44,7 +44,7 @@ public:
 	int GetRestDay() {
 		return rest_day;
 	}
-	bool SetRestDay(int rest_day) {
+	void SetRestDay(int rest_day) {
 		this->rest_day = rest_day;
 	}
 	bool GetBankRupt() {

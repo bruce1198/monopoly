@@ -217,11 +217,11 @@ void My_Display() {
 			glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4mv"), 1, GL_FALSE, value_ptr(view*d.getModelMatrix()));
 			d.draw(); 
 		}
-		//draw window
-		window.drawPurchase(window_shader.getProgram(), mousePos, currentWH);
 		//draw panel
 		panel.setMoney(game.money[0], game.money[1]);
 		panel.draw(window_shader.getProgram());
+		//draw window
+		window.drawPurchase(window_shader.getProgram(), mousePos, currentWH);
 		//--
 	}
 	else {
@@ -302,7 +302,9 @@ void My_Timer(int val) {
 	bool done = camera.update();
 	//event
 	if (game.is_gameover) {
-		exit(0);
+		window.gameover = true;
+		window.wantOpen = true;
+		window.windowScale = 1.0f;
 	}
 	if (camera.pass) {
 		camera.pass = false;

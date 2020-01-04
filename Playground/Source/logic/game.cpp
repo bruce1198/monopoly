@@ -103,6 +103,15 @@ void Game::Run() {
                         player[player_iter].LeaveJail();
                     }
                 }
+				if (player[player_iter].GetIsRest()) {
+					player[player_iter].SetRestDay(player[player_iter].GetRestDay() + 1);
+					cout << "----------------" << "\n";
+					cout << "Player is in rest day " << player[player_iter].GetRestDay() << "\n";
+					cout << "----------------" << "\n";
+					if (player[player_iter].GetRestDay() > 1) {
+						player[player_iter].LeaveRest();
+					}
+				}
                 while(player[player_iter].GetOneMore()) {
 					getPoints = false;
 					canThrow = false;
@@ -110,6 +119,10 @@ void Game::Run() {
 					getcard = false;
 					getcarddone = false;
 					from = player[player_iter].GetPosition();
+					if (player[player_iter].GetIsRest()) {
+						// rest can't throw dice
+						break;
+					}
 					//cout << "player" << player_iter << " position: " <<from << endl;
 					while (!canThrow) {
 						cout << "";
@@ -174,6 +187,8 @@ void Game::Run() {
     GameOver();
 }
 void Game::GameOver() {
+	money[0] = player[0].GetMoney();
+	money[1] = player[1].GetMoney();
     cout << "GAMEOVER" << "\n";
 }
 void Game::Event(int position, int player_num) {
@@ -737,6 +752,7 @@ void Game::Event(int position, int player_num) {
     default:
         break;
     }
+	player[player_num].SetMoney(-1);
 }
 void Game::Show() {
     // cout << num_of_player << "\n";
