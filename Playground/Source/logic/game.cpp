@@ -739,6 +739,7 @@ void Game::Event(int position, int player_num) {
 	case jail_visit:
 		//TODO
 		dice_result = player[player_num].ThrowDice(1,1);
+		dice_result = rand();
 		if (dice_result % 2 == 0) {
 			smove = true;
 			smoveidx = player_num;
