@@ -6,6 +6,7 @@
 #include "logic/game.h"
 #include "window/PopUpWindow.h"
 #include "panel/propertyPanel.h"
+#include "start/intro.h"
 #include <thread>
 //For GLUT to handle 
 #define MENU_TIMER_START 1
@@ -31,6 +32,7 @@ Community community;
 Camera camera;
 PopUpWindow window;
 PropertyPanel panel;
+Button start_btn;
 //shader
 Shader chess_shader;
 Shader dice_shader;
@@ -40,6 +42,9 @@ Shader house_shader;
 Shader window_shader;
 Shader depth_shader;
 Shader shadow_shader;
+Shader skybox_shader;
+//
+Skybox skybox;
 //fbo
 Fbo shadow_buffer;
 
@@ -62,6 +67,21 @@ void My_Init()
 	window_shader = Shader("window/window.vertex", "window/window.fragment");
 	depth_shader = Shader("depth.vertex", "depth.fragment");
 	shadow_shader = Shader("shadow.vertex", "shadow.fragment");
+	skybox_shader = Shader("skybox/skybox.vertex", "skybox/skybox.fragment");
+	//start
+	Setting_Shader();
+	panda.Load_Picture("start/panda.png");
+	nthu.Load_Picture("start/nthu.png");
+	nthu_door.Load_Picture("start/nthu_door.png");
+	nthu_flag.Load_Picture("start/nthu_flag.png");
+	monopoly_logo.Load_Picture("start/monopoly_logo.png");
+	intro_buttom.Load_Picture("start/intro_buttom.png");
+	start_btn.Load_Picture("start/start.jpg", "start/start2.jpg");
+	//help.Load_Picture("help.jpg", "help2.jpg");
+	//right.Load_Picture("right.jpg", "right2.jpg");
+	//left.Load_Picture("left.jpg", "left2.jpg");
+	frame_subject.Load_Frame_Subject();
+	//
 	game = Game(2);
 	for (int i = 0; i < 2; i++) {
 		chess.push_back(Chess(chess_shader.getProgram(), i));
@@ -69,10 +89,10 @@ void My_Init()
 	dg = DiceGroup(2);
 	cg = CardGroup(20);
 	mymap = Map("map/map.png");
+	skybox = Skybox(1);
 	camera = Camera(vec3(0, 15, 0), vec3(0, 1, 0), 0, -30);
 	window = PopUpWindow(window_shader.getProgram());
 	panel = PropertyPanel(window_shader.getProgram());
-	camera.goTopView();
 
 	glGenFramebuffers(1, &shadow_buffer.fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadow_buffer.fbo);
@@ -89,103 +109,164 @@ void My_Init()
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadow_buffer.texture, 0);
 
 }
-
+bool first = true;
 void My_Display() {
-	const float shadow_range = 30.0f;
-	mat4 light_proj_matrix = ortho(-shadow_range, shadow_range, -shadow_range, shadow_range, 0.0f, 100.0f);
-	mat4 light_view_matrix = lookAt(vec3(-4, 20, 10), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-	mat4 light_vp_matrix = light_proj_matrix * light_view_matrix;
-	mat4 scale_bias_matrix = translate(mat4(), vec3(0.5f, 0.5f, 0.5f)) * scale(mat4(), vec3(0.5f, 0.5f, 0.5f));
-	mat4 shadow_sbpv_matrix = scale_bias_matrix * light_vp_matrix;
 
-	//-----------shadow fbo---------------------//
-	glBindFramebuffer(GL_FRAMEBUFFER, shadow_buffer.fbo);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-	depth_shader.use();
+	if (if_start) {
+		if (first) {
+			first = false;
+			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glEnable(GL_MULTISAMPLE);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDepthFunc(GL_LEQUAL);
+			camera.goTopView();
+		}
+		const float shadow_range = 30.0f;
+		mat4 light_proj_matrix = ortho(-shadow_range, shadow_range, -shadow_range, shadow_range, 0.0f, 100.0f);
+		mat4 light_view_matrix = lookAt(vec3(-4, 20, 10), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+		mat4 light_vp_matrix = light_proj_matrix * light_view_matrix;
+		mat4 scale_bias_matrix = translate(mat4(), vec3(0.5f, 0.5f, 0.5f)) * scale(mat4(), vec3(0.5f, 0.5f, 0.5f));
+		mat4 shadow_sbpv_matrix = scale_bias_matrix * light_vp_matrix;
 
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(4.0f, 4.0f);
-	//draw chess
-	for (Chess&c : chess) {
+		//-----------shadow fbo---------------------//
+		glBindFramebuffer(GL_FRAMEBUFFER, shadow_buffer.fbo);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+		depth_shader.use();
+
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(4.0f, 4.0f);
+		//draw card
 		glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
-		c.setView(light_view_matrix);
-		//c.draw(depth_shader.getProgram(), true);
-	}
-	//draw card
-	glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
-	cg.setView(light_view_matrix);
-	cg.draw(depth_shader.getProgram());
-	//draw house
-	glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
-	community.setView(light_view_matrix);
-	community.draw(depth_shader.getProgram());
-	//draw dice
-	glUniformMatrix4fv(glGetUniformLocation(depth_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(light_proj_matrix));
-	dg.setView(light_view_matrix);
-	dg.draw(depth_shader.getProgram());
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	//---------------------------------------------
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, screenWidth, screenHeight);
-	// Clear display buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		cg.setView(light_view_matrix);
+		cg.draw(depth_shader.getProgram());
+		//draw house
+		community.setView(light_view_matrix);
+		community.draw(depth_shader.getProgram());
+		//draw dice
+		dg.setView(light_view_matrix);
+		dg.draw(depth_shader.getProgram());
+		//draw chess
+		for (Chess&c : chess) {
+			c.setView(light_view_matrix);
+			c.draw(depth_shader.getProgram(), true);
+		}
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		//---------------------------------------------
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, screenWidth, screenHeight);
+		// Clear display buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	mat4 view = camera.getViewMatrix();
-	GLfloat viewportAspect = screenWidth / screenHeight;
-	mat4 projection = perspective(camera.getZoom(), viewportAspect, 0.1f, 10000.0f);
-	//draw chess
-	for (Chess&c : chess) {
-		c.setLightPos(vec3(-4, 20, 10));
-		c.setProj(projection);
-		c.setView(view);
-		c.draw(chess_shader.getProgram(), false);
-	}
-	//draw dice
-	dice_shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(dice_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
-	dg.setView(view);
-	dg.draw(dice_shader.getProgram());
-	//draw card
-	card_shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(card_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
-	cg.setView(view);
-	cg.draw(card_shader.getProgram());
-	//draw map
-	map_shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(map_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
-	mymap.setView(view);
-	mymap.draw(map_shader.getProgram(), true);
-	//draw house
-	house_shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(house_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
-	community.setView(view);
-	community.draw(house_shader.getProgram());
-	//draw shadow
-	shadow_shader.use();
-	mat4 shadow_matrix = shadow_sbpv_matrix * mymap.getModel();
-	glActiveTexture(GL_TEXTURE);
-	glBindTexture(GL_TEXTURE_2D, shadow_buffer.texture);
-	glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "shadow_matrix"), 1, GL_FALSE, value_ptr(shadow_matrix));
-	glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
-	mymap.setView(view);
-	mymap.draw(shadow_shader.getProgram(), false);
-	//
-	vector<Dice> group = dg.getGroup();
-	for (Dice&d : group) {
-		shadow_matrix = shadow_sbpv_matrix * d.getModelMatrix();
+		mat4 view = camera.getViewMatrix();
+		GLfloat viewportAspect = screenWidth / screenHeight;
+		mat4 projection = perspective(camera.getZoom(), viewportAspect, 0.1f, 10000.0f);
+		glDepthMask(GL_FALSE);// Remember to turn depth writing off
+		skybox_shader.use();
+		mat4 boxview = mat4(mat3(view));
+		glUniformMatrix4fv(glGetUniformLocation(skybox_shader.getProgram(), "view"), 1, GL_FALSE, value_ptr(boxview));
+		glUniformMatrix4fv(glGetUniformLocation(skybox_shader.getProgram(), "projection"), 1, GL_FALSE, value_ptr(projection));
+		skybox.draw();
+		glDepthMask(GL_TRUE);
+		//draw chess
+		for (Chess&c : chess) {
+			c.setLightPos(vec3(-4, 20, 10));
+			c.setProj(projection);
+			c.setView(view);
+			c.draw(chess_shader.getProgram(), false);
+		}
+		//draw dice
+		dice_shader.use();
+		glUniformMatrix4fv(glGetUniformLocation(dice_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
+		dg.setView(view);
+		dg.draw(dice_shader.getProgram());
+		//draw card
+		card_shader.use();
+		glUniformMatrix4fv(glGetUniformLocation(card_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
+		cg.setView(view);
+		cg.draw(card_shader.getProgram());
+		//draw map
+		skybox.bind();
+		map_shader.use();
+		glUniformMatrix4fv(glGetUniformLocation(map_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
+		mymap.setView(view);
+		mymap.draw(map_shader.getProgram(), true);
+		//draw house
+		house_shader.use();
+		glUniformMatrix4fv(glGetUniformLocation(house_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
+		community.setView(view);
+		community.draw(house_shader.getProgram());
+		//draw shadow
+		shadow_shader.use();
+		mat4 shadow_matrix = shadow_sbpv_matrix * mymap.getModel();
+		glActiveTexture(GL_TEXTURE);
+		glBindTexture(GL_TEXTURE_2D, shadow_buffer.texture);
 		glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "shadow_matrix"), 1, GL_FALSE, value_ptr(shadow_matrix));
 		glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4mv"), 1, GL_FALSE, value_ptr(view*d.getModelMatrix()));
-		d.draw(); 
+		mymap.setView(view);
+		mymap.draw(shadow_shader.getProgram(), false);
+		//
+		vector<Dice> group = dg.getGroup();
+		for (Dice&d : group) {
+			shadow_matrix = shadow_sbpv_matrix * d.getModelMatrix();
+			glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "shadow_matrix"), 1, GL_FALSE, value_ptr(shadow_matrix));
+			glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4p"), 1, GL_FALSE, value_ptr(projection));
+			glUniformMatrix4fv(glGetUniformLocation(shadow_shader.getProgram(), "um4mv"), 1, GL_FALSE, value_ptr(view*d.getModelMatrix()));
+			d.draw(); 
+		}
+		//draw window
+		window.drawPurchase(window_shader.getProgram(), mousePos, currentWH);
+		//draw panel
+		panel.setMoney(game.money[0], game.money[1]);
+		panel.draw(window_shader.getProgram());
+		//--
 	}
-	//draw window
-	window.drawPurchase(window_shader.getProgram(), mousePos, currentWH);
-	//draw panel
-	panel.draw(window_shader.getProgram(), game.money[0], game.money[1]);
-	//--
+	else {
+		//
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame_subject.fbo_origin);
+		{
+			glViewport(0, 0, intro.screen_width, intro.screen_height);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+			static const GLfloat purple[] = { 0.88, 0.63, 1.0, 1.0 };
+			static const GLfloat one = 1.0f;
+			glClearBufferfv(GL_COLOR, 0, purple);
+			glClearBufferfv(GL_DEPTH, 0, &one);
+
+			Draw_Panda();
+			Draw_Nthu_Flag();
+			Draw_Monopoly_Logo();
+			Draw_Intro_Buttom();
+			//glUniform1f(button_program.time, timer_cnt);
+			start_btn.Draw_Button(0, 2.5, -0.12, 0.12, 0.24, 0.36);
+
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		}
+
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame_subject.fbo_darker);
+		{
+			glViewport(0, 0, intro.screen_width, intro.screen_height);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			static const GLfloat purple[] = { 0.88, 0.63, 1.0, 1.0 };
+			static const GLfloat red[] = { 1, 0,0, 1.0 };
+			static const GLfloat one = 1.0f;
+			glClearBufferfv(GL_COLOR, 0, red);
+			glClearBufferfv(GL_DEPTH, 0, &one);
+			frame_subject.Draw(frame_subject.texture_origin);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		}
+
+		glDisable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		frame_subject.Draw(frame_subject.texture_darker);
+	}
+	//
     glutSwapBuffers();
 }
 void My_Reshape(int width, int height) {
@@ -203,6 +284,14 @@ void My_Reshape(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadow_buffer.texture, 0);
+	//
+	intro.screen_width = width;
+	intro.screen_height = height;
+	float viewportAspect = (float)width / (float)height;
+	intro.viewportRatio = viewportAspect;
+	intro.projection = perspective(radians(80.0f), viewportAspect, 0.1f, 1000.0f);
+	Frame_Subject_Configure(frame_subject.rbo_Sb, frame_subject.fbo_origin, frame_subject.texture_origin, width, height);
+	Frame_Subject_Configure(frame_subject.rbo_Sb, frame_subject.fbo_darker, frame_subject.texture_darker, width, height);
 }
 int index;
 void My_Timer(int val) {
@@ -212,6 +301,13 @@ void My_Timer(int val) {
 	int* points = dg.update();
 	bool done = camera.update();
 	//event
+	if (game.is_gameover) {
+		exit(0);
+	}
+	if (camera.pass) {
+		camera.pass = false;
+		game.updatemoney = true;
+	}
 	if (game.goThrow) {
 		game.goThrow = false;
 		if (camera.getCurrentView() == 1) {
@@ -349,6 +445,7 @@ GLfloat lastY;
 void My_Mouse(int button, int state, int x, int y)
 {
 	if (state == GLUT_DOWN) {
+		start_btn.If_Click();
 		switch (window.check(mousePos, currentWH)) {
 		case 0:
 			break;
@@ -381,6 +478,7 @@ void My_Mouse(int button, int state, int x, int y)
 void My_PassiveMouse(int x, int y)
 {
 	mousePos = vec2(x, y);
+	intro.mouseRatio = vec2(((x / intro.screen_width) * 2 - 1) * (intro.screen_width / (intro.screen_height * 16 / 9)), (y / intro.screen_height) * 2 - 1);
 }
 void My_Mouse_Move(int x, int y) {
 

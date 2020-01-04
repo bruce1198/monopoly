@@ -44,6 +44,7 @@ public:
 	GLfloat MouseSensitivity;
 	GLfloat Zoom;
 	bool direction[6];
+	bool pass;
 
 	// Constructor with vectors
 	Camera(vec3 position=vec3(-10.0f, 5.0f, 0.0f), vec3 up=vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH): MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
@@ -127,6 +128,7 @@ public:
 			d = false;
 		}
 		stepleft = 0;
+		pass = false;
 	}
 	void goTopView() {
 		if (valid()) {
@@ -230,6 +232,8 @@ public:
 		if(currentview==2 && stepleft>0 && !goplayerview) {
 			currentindex++;
 			stepleft--;
+			if (currentindex == 40)
+				pass = true;
 			goPlayerView(currentindex);
 		}
 		else if (currentview == 2 && stepleft == 0 && !goplayerview) {

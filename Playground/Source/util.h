@@ -112,6 +112,20 @@ class Skybox {
 private:
 	GLuint cubemapTexture;
 	GLuint skyboxVAO, skyboxVBO;
+	vector<const char*> faces = {
+		//"skybox/face-r.png",
+		//"skybox/face-l.png",
+		//"skybox/face-t.png",
+		//"skybox/face-d.png",
+		//"skybox/face-f.png",
+		//"skybox/face-b.png"
+		"skybox/s.png",
+		"skybox/s.png",
+		"skybox/s-d.png",
+		"skybox/s-t.png",
+		"skybox/s.png",
+		"skybox/s.png"
+	};
 	float skyboxVertices[108] = {
 		// positions
 		-1.0f,  1.0f, -1.0f,
@@ -160,8 +174,7 @@ public:
 	Skybox() {
 
 	}
-	Skybox(vector<const char*> faces) {
-
+	Skybox(int i) {
 		glGenVertexArrays(1, &skyboxVAO);
 		glGenBuffers(1, &skyboxVBO);
 		glBindVertexArray(skyboxVAO);
@@ -175,28 +188,37 @@ public:
 
 		int width, height, nrChannels;
 		unsigned char* image;
-		for (int i = 0; i < faces.size(); i++) {
-			stbi_set_flip_vertically_on_load(true);
-			unsigned char *data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
-			if (data != NULL) {
-				image = new unsigned char[width*height*nrChannels * sizeof(unsigned char)];
-				memcpy(image, data, width*height*nrChannels * sizeof(unsigned char));
+		for (unsigned int i = 0; i < faces.size(); i++) {
+			stbi_uc* data = stbi_load(faces[i], &width, &height, &nrChannels, STBI_rgb_alpha);
+			if (data) {
+				image = new unsigned char[width*height * 4 * sizeof(unsigned char)];
+				memcpy(image, data, width*height * 4 * sizeof(unsigned char));
 				stbi_image_free(data);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+				cout << nrChannels << endl;
+				if (nrChannels == 3)
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+				else if (nrChannels == 4)
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 			}
-			glBindTexture(GL_TEXTURE_2D, cubemapTexture);
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		}
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}
+	void bind() {
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	}
 	void draw() {
 		glBindVertexArray(skyboxVAO);
-		glBindTexture(GL_TEXTURE_2D, cubemapTexture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 };
 #endif 

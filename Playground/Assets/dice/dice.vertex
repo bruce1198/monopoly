@@ -4,7 +4,8 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 tex_coord;
 layout(location = 2) in vec3 normal;
 
-uniform mat4 um4mv;
+uniform mat4 um4m;
+uniform mat4 um4v;
 uniform mat4 um4p;
 uniform vec3 lightPos = vec3(-4, 20, 10);
 
@@ -18,10 +19,10 @@ out VS_OUT
 
 void main()
 {
-	vec4 P = um4mv * vec4(position, 1.0);
-	vs_out.N = mat3(um4mv) * normal;
-	vs_out.L = mat3(um4mv) * lightPos - P.xyz;
+	vec4 P = um4v * um4m * vec4(position, 1.0);
+	vs_out.N = mat3(um4m) * normal;
+	vs_out.L =  lightPos - P.xyz;
 	vs_out.V = -P.xyz;
     vs_out.texcoord = position;
-	gl_Position = um4p * um4mv * vec4(position, 1.0);
+	gl_Position = um4p * um4v * um4m * vec4(position, 1.0);
 }

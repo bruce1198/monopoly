@@ -77,13 +77,16 @@ public:
     }
     void init() {
 		model = rotate(mat4(), radians(270.0f), vec3(0, 1, 0));
+		model = scale(model, vec3(1, 20, 1));
     }
 	void draw(GLuint program, bool draw_tex) {
 		for (int i = 0; i < shape_size; i++) {
 			glBindVertexArray(s[i].vao);
 			if(draw_tex)
 				glBindTexture(GL_TEXTURE_2D, tex);
-            glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view * model));
+            glUniformMatrix4fv(glGetUniformLocation(program, "um4m"), 1, GL_FALSE, value_ptr(model));
+			glUniformMatrix4fv(glGetUniformLocation(program, "um4v"), 1, GL_FALSE, value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view*model));
 			glDrawElements(GL_TRIANGLES, s[i].indexCount, GL_UNSIGNED_INT, 0);
 		}
 	}

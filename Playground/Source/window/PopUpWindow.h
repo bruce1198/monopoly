@@ -269,7 +269,7 @@ public:
 		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
 		glActiveTexture(GL_TEXTURE0);
 		//cout << idx;
-		glBindTexture(GL_TEXTURE_2D, texturePositionName[idx].texture);
+		glBindTexture(GL_TEXTURE_2D, texturePositionName[idx%40].texture);
 		glUniform1i(m_Uniform.tex, 0);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -278,7 +278,7 @@ public:
 
 		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texturePrice[idx].texture);
+		glBindTexture(GL_TEXTURE_2D, texturePrice[idx % 40].texture);
 		glUniform1i(m_Uniform.tex, 0);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
