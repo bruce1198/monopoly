@@ -30,7 +30,7 @@ void Game::ShuffleFate() {
     shuffle(fate_random.begin(), fate_random.end(), default_random_engine(seed));
 }
 void Game::ShuffleOpportunity() {
-    opportunity_random = vector<int>(opportunity_fix));
+    opportunity_random = vector<int>(opportunity_fix);
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     shuffle(opportunity_random.begin(), opportunity_random.end(), default_random_engine(seed));
 }
@@ -93,6 +93,7 @@ void Game::Run() {
                     }
                 }
                 while(player[player_iter].GetOneMore()) {
+                    int num_of_move;
                     if(!player[player_iter].GetIsRest()) {
                         // rest can't throw dice
                         int num_of_move = player[player_iter].ThrowDice();
