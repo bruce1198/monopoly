@@ -22,6 +22,7 @@
     <ClInclude Include="..\Source\chess\chess.h" />
     <ClInclude Include="..\Source\panel\propertyPanel.h" />
     <ClInclude Include="..\Source\house\house.h" />
+    <ClInclude Include="..\Source\start\intro.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\window\window.fragment" />

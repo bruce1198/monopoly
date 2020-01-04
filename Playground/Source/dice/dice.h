@@ -2,19 +2,55 @@
 #pragma once
 #include "../util.h"
 
+using namespace tinyobj;
+
 class Dice {
 public:
 	Dice() {
-		glGenVertexArrays(1, &vao);
+		/*glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), &vertex, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);*/
+		vector<shape_t> shapes;
+		vector<material_t> materials;
+
+		string err;
+
+		LoadObj(shapes, materials, err, "dice/Cube.obj");
+		if (err.size() > 0) {
+			printf("Load Models Fail! Please check the solution path");
+			return;
+		}
+		glGenVertexArrays(1, &s.vao);
+		glBindVertexArray(s.vao);
+
+		glGenBuffers(1, &s.vbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, s.vbo);
+		glBufferData(GL_ARRAY_BUFFER, shapes[0].mesh.positions.size() * sizeof(float) + shapes[0].mesh.texcoords.size() * sizeof(float) + shapes[0].mesh.normals.size() * sizeof(float), NULL, GL_STATIC_DRAW);
+
+		glBufferSubData(GL_ARRAY_BUFFER, 0, shapes[0].mesh.positions.size() * sizeof(float), &shapes[0].mesh.positions[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, shapes[0].mesh.positions.size() * sizeof(float), shapes[0].mesh.texcoords.size() * sizeof(float), &shapes[0].mesh.texcoords[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, shapes[0].mesh.positions.size() * sizeof(float) + shapes[0].mesh.texcoords.size() * sizeof(float), shapes[0].mesh.normals.size() * sizeof(float), &shapes[0].mesh.normals[0]);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(shapes[0].mesh.positions.size() * sizeof(float)));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void *)((shapes[0].mesh.positions.size() * sizeof(float)) + (shapes[0].mesh.texcoords.size() * sizeof(float))));
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+
+		glGenBuffers(1, &s.ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s.ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, shapes[0].mesh.indices.size() * sizeof(unsigned int), shapes[0].mesh.indices.data(), GL_STATIC_DRAW);
+		s.materialId = shapes[0].mesh.material_ids[0];
+		s.indexCount = static_cast<int>(shapes[0].mesh.indices.size());
 
 		glGenTextures(1, &texture);
-		//glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 
 		int width, height, nrChannels;
@@ -26,12 +62,11 @@ public:
 				image = new unsigned char[width*height * 4 * sizeof(unsigned char)];
 				memcpy(image, data, width*height * 4 * sizeof(unsigned char));
 				stbi_image_free(data);
-				glBindTexture(GL_TEXTURE_2D, texture);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 				if (nrChannels == 3)
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 				else if (nrChannels == 4)
 					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -39,7 +74,9 @@ public:
 				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 			}
 		}
-		scl = vec3(0.25);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		scl = vec3(0.5);
 		vec_x = vec3(1.0, 0.0, 0.0);
 		vec_y = vec3(0.0, 1.0, 0.0);
 		vec_z = vec3(0.0, 0.0, 1.0);
@@ -154,10 +191,16 @@ public:
 		return matrix;
 	}
 	void draw() {
-		glBindVertexArray(vao);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(vao);
+		//glBindTexture(GL_TEXTURE_2D, texture);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(0);
+
+		glBindVertexArray(s.vao);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+		glDrawElements(GL_TRIANGLES, s.indexCount, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 private:
 	//physics
@@ -182,6 +225,7 @@ private:
 	GLfloat move_cnt;
 	GLuint flag;
 	//basics
+	Shape s;
 	vector<const char*> faces = { "dice/one.png","dice/six.png", "dice/two.png", "dice/five.png", "dice/three.png", "dice/four.png" };
 	GLuint texture;
 	GLuint vao;
@@ -266,6 +310,8 @@ public:
 		for (int i = 0; i < size; i++) {
 			mat4 model = group.at(i).getModelMatrix();
 			glUniform1i(glGetUniformLocation(program, "flag"), color);
+			glUniformMatrix4fv(glGetUniformLocation(program, "um4m"), 1, GL_FALSE, value_ptr(model));
+			glUniformMatrix4fv(glGetUniformLocation(program, "um4v"), 1, GL_FALSE, value_ptr(view));
 			glUniformMatrix4fv(glGetUniformLocation(program, "um4mv"), 1, GL_FALSE, value_ptr(view*model));
 			group.at(i).draw();
 		}

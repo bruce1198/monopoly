@@ -98,6 +98,6 @@ void Player::GoJail() {
 }
 void Player::LeaveJail() {
 	in_jail = false;
-	one_more = false;
+	one_more = true;
 	jail_day = 0;
 }

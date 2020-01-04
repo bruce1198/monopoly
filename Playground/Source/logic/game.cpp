@@ -37,6 +37,7 @@ Game::Game(int num_of_player) {
 	keetsu = false;
 	getcard = false;
 	smove = false;
+	updatemoney = false;
 	money[0] = 15000;
 	money[1] = 15000;
     // player.resize(num_of_player);
@@ -127,10 +128,15 @@ void Game::Run() {
                         cout << "Player" << player_iter << " Position : " << player[player_iter].GetPosition() << "\n";
                     }
                     else {
+						from = player[player_iter].GetPosition();
 						goWalk = true;
 						response = true;
                         player[player_iter].Move(num_of_move);
 						while (!movedone) {
+							if (updatemoney) {
+								updatemoney = false;
+								money[player_iter] = player[player_iter].GetMoney();
+							}
 							cout << "";
 						}
                         cout << "Player" << player_iter << " Position : " << player[player_iter].GetPosition() << "\n";
@@ -537,6 +543,9 @@ void Game::Event(int position, int player_num) {
 			player[player_num].Move(3);
 			break;
 		case 19:
+			smove = true;
+			smoveidx = player_num;
+			smovepos = 10;
 			player[player_num].GoJail();
 			break;
 		default:
@@ -651,6 +660,9 @@ void Game::Event(int position, int player_num) {
 			player[player_num].SetMoney(player[player_num].GetMoney() - 600);
 			break;
 		case 20:
+			smove = true;
+			smoveidx = player_num;
+			smovepos = 10;
 			player[player_num].GoJail();
 		default:
 			break;
@@ -713,6 +725,9 @@ void Game::Event(int position, int player_num) {
 		//TODO
 		dice_result = player[player_num].ThrowDice(1,1);
 		if (dice_result % 2 == 0) {
+			smove = true;
+			smoveidx = player_num;
+			smovepos = 10;
 			player[player_num].GoJail();
 		}
 		else if (dice_result % 2 == 1) {

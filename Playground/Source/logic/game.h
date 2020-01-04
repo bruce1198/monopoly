@@ -51,12 +51,13 @@ public:
 	int answer;
 	bool getanswer;
 	bool getcarddone;
+	bool updatemoney;
+	bool is_gameover = false;
     
 private:
     vector<Player> player;
     LogicMap map;
     int num_of_player;
-    bool is_gameover = false;
 	vector<int> opportunity_fix;
 	vector<int> opportunity_random;
 	vector<int> fate_fix;

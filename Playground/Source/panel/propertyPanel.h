@@ -32,7 +32,13 @@ public:
 		GLint tex;
 	} m_Uniform;
 
+	void setMoney(int one, int two) {
+		money1 = one;
+		money2 = two;
+	}
 	void init(GLuint program, string imgStrPanelPlayer1, string imgStrPanelPlayer2, string imgStrNumber[]) {
+		money1 = 15000;
+		money2 = 15000;
 		texturePanelPlayer1.init(imgStrPanelPlayer1.c_str());
 		texturePanelPlayer2.init(imgStrPanelPlayer2.c_str());
 		for (int i = 0; i < 10; i++) {
@@ -175,7 +181,7 @@ public:
 		}
 	}
 
-	void draw(GLuint program, int moneyPlayer1, int moneyPlayer2) {
+	void draw(GLuint program) {
 		if (!isOpen)
 			return;
 
@@ -183,10 +189,10 @@ public:
 		int moneyArrayPlayer2[6];
 
 		for (int i = 0; i < 6; i++) {
-			moneyArrayPlayer1[i] = moneyPlayer1 % 10;
-			moneyPlayer1 /= 10;
-			moneyArrayPlayer2[i] = moneyPlayer2 % 10;
-			moneyPlayer2 /= 10;
+			moneyArrayPlayer1[i] = money1 % 10;
+			money1 /= 10;
+			moneyArrayPlayer2[i] = money2 % 10;
+			money2 /= 10;
 		}
 
 		glUseProgram(program);
@@ -238,6 +244,8 @@ private:
 	Texture2D texturePanelPlayer1;
 	Texture2D texturePanelPlayer2;
 	Texture2D textureNumber[10];
+	GLint money1;
+	GLint money2;
 };
 
 #endif // !PROPERTYPANEL
