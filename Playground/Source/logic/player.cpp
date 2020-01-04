@@ -90,6 +90,7 @@ void Player::Rest() {
 void Player::LeaveRest() {
 	is_rest = false;
 	rest_day = 0;
+	one_more = true;
 }
 void Player::GoJail() {
 	in_jail = true;

@@ -21,12 +21,14 @@ public:
 	}
 
 	GLuint vaoPanel;
+	GLuint vaoPanelGameOver;
 	GLuint vaoButton_YES;
 	GLuint vaoButton_NO;
 	GLuint vaoPostionName;
 	GLuint vaoPrice;
 	mat4 mvp;
 	GLint idx;
+	bool gameover;
 	// vec2 texOffset;
 
 	struct _Uniform {
@@ -36,6 +38,7 @@ public:
 	} m_Uniform;
 	
 	void init(GLuint program) {
+		gameover = false;
 		type = 0;
 		mvp = mat4(1.0f);
 		// texOffset = vec2(-400, -159);
@@ -76,6 +79,27 @@ public:
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
+		//
+		glCreateVertexArrays(1, &vaoPanelGameOver);
+		glBindVertexArray(vaoPanelGameOver);
+
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		const float goData[] =
+		{
+			-1, -1, 0.0, 1.0,
+			-1, 1, 0.0, 1.0,
+			1,  -1, 0.0, 1.0,
+			1, 1, 0.0, 1.0,
+		};
+		glBufferData(GL_ARRAY_BUFFER, sizeof(goData), goData, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+		glGenBuffers(1, &texcoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(texcoordData), texcoordData, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
 
 		//buttonVAO_YES
 		glGenVertexArrays(1, &vaoButton_YES);
@@ -174,6 +198,7 @@ public:
 		glEnableVertexAttribArray(1);
 
 		texturePanel.init("window/woodPanel3.png");
+		textureGameOver.init("window/woodPanel_GameOver.png");
 		textureNormalBtn_YES.init("window/ButtonNormal_CYES.png");
 		textureNormalBtn_NO.init("window/ButtonNormal_CNO.png");
 		textureClickedBtn_YES.init("window/ButtonClicked_CYES.png");
@@ -211,79 +236,90 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glBindVertexArray(vaoPanel);
-
-		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texturePanel.texture);
-		glUniform1i(m_Uniform.tex, 0);
-		// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-		glBindVertexArray(0);
-		glBindVertexArray(vaoButton_YES);
-
-		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
-		glActiveTexture(GL_TEXTURE0);
-		if (check(mousePos, currentWH) == 1) {
-			if(type==0)
-				glBindTexture(GL_TEXTURE_2D, textureClickedBtn_YES.texture);
-			else
-				glBindTexture(GL_TEXTURE_2D, textureClickedBtn_A.texture);
+		
+		if (gameover) {
+			glBindVertexArray(vaoPanelGameOver);
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, textureGameOver.texture);
+			glUniform1i(m_Uniform.tex, 0);
+			// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
 		}
 		else {
-			if(type==0)
-				glBindTexture(GL_TEXTURE_2D, textureNormalBtn_YES.texture);
-			else
-				glBindTexture(GL_TEXTURE_2D, textureNormalBtn_A.texture);
+			glBindVertexArray(vaoPanel);
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texturePanel.texture);
+			glUniform1i(m_Uniform.tex, 0);
+			// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
 		}
-		glUniform1i(m_Uniform.tex, 0);
-		// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		if (!gameover) {
+			glBindVertexArray(vaoButton_YES);
 
-		glBindVertexArray(0);
-		glBindVertexArray(vaoButton_NO);
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			if (check(mousePos, currentWH) == 1) {
+				if(type==0)
+					glBindTexture(GL_TEXTURE_2D, textureClickedBtn_YES.texture);
+				else
+					glBindTexture(GL_TEXTURE_2D, textureClickedBtn_A.texture);
+			}
+			else {
+				if(type==0)
+					glBindTexture(GL_TEXTURE_2D, textureNormalBtn_YES.texture);
+				else
+					glBindTexture(GL_TEXTURE_2D, textureNormalBtn_A.texture);
+			}
+			glUniform1i(m_Uniform.tex, 0);
+			// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
-		glActiveTexture(GL_TEXTURE0);
-		if (check(mousePos, currentWH) == 2) {
-			if (type == 0)
-				glBindTexture(GL_TEXTURE_2D, textureClickedBtn_NO.texture);
-			else
-				glBindTexture(GL_TEXTURE_2D, textureClickedBtn_B.texture);
+			glBindVertexArray(0);
+			glBindVertexArray(vaoButton_NO);
+
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			if (check(mousePos, currentWH) == 2) {
+				if (type == 0)
+					glBindTexture(GL_TEXTURE_2D, textureClickedBtn_NO.texture);
+				else
+					glBindTexture(GL_TEXTURE_2D, textureClickedBtn_B.texture);
+			}
+			else {
+				if (type == 0)
+					glBindTexture(GL_TEXTURE_2D, textureNormalBtn_NO.texture);
+				else
+					glBindTexture(GL_TEXTURE_2D, textureNormalBtn_B.texture);
+			}
+
+			glUniform1i(m_Uniform.tex, 0);
+			// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+			glBindVertexArray(0);
+			glBindVertexArray(vaoPostionName);
+
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			//cout << idx;
+			glBindTexture(GL_TEXTURE_2D, texturePositionName[idx%40].texture);
+			glUniform1i(m_Uniform.tex, 0);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+			glBindVertexArray(0);
+			glBindVertexArray(vaoPrice);
+
+			glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texturePrice[idx % 40].texture);
+			glUniform1i(m_Uniform.tex, 0);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
 		}
-		else {
-			if (type == 0)
-				glBindTexture(GL_TEXTURE_2D, textureNormalBtn_NO.texture);
-			else
-				glBindTexture(GL_TEXTURE_2D, textureNormalBtn_B.texture);
-		}
-
-		glUniform1i(m_Uniform.tex, 0);
-		// glUniform2fv(m_Uniform.texOffset, 1, value_ptr(texOffset));
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-		glBindVertexArray(0);
-		glBindVertexArray(vaoPostionName);
-
-		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
-		glActiveTexture(GL_TEXTURE0);
-		//cout << idx;
-		glBindTexture(GL_TEXTURE_2D, texturePositionName[idx%40].texture);
-		glUniform1i(m_Uniform.tex, 0);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-		glBindVertexArray(0);
-		glBindVertexArray(vaoPrice);
-
-		glUniformMatrix4fv(m_Uniform.mvp, 1, GL_FALSE, value_ptr(mvp));
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texturePrice[idx % 40].texture);
-		glUniform1i(m_Uniform.tex, 0);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-		glBindVertexArray(0);
-
 
 		glDisable(GL_BLEND);
 		glUseProgram(0);
@@ -309,6 +345,7 @@ public:
 private:
 	GLint type;
 	Texture2D texturePanel;
+	Texture2D textureGameOver;
 	Texture2D textureNormalBtn_YES;
 	Texture2D textureNormalBtn_NO;
 	Texture2D textureClickedBtn_YES;
