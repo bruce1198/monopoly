@@ -753,7 +753,6 @@ void Game::Event(int position, int player_num) {
     default:
         break;
     }
-	player[player_num].SetMoney(-1);
 }
 void Game::Show() {
     // cout << num_of_player << "\n";
